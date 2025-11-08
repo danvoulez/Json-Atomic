@@ -3,7 +3,8 @@
  * Particiona ledger por mês ou tenant, cria novos arquivos conforme regras.
  */
 
-import { Ledger } from "./ledger.ts"
+import { Ledger } from "./ledger.js"
+import type { Atomic } from "../../types.js"
 
 export class LedgerRotator {
   private basePath: string
@@ -14,19 +15,19 @@ export class LedgerRotator {
     this.mode = mode
   }
 
-  getCurrentLedgerFile(meta?: any): string {
+  getCurrentLedgerFile(atomic?: Atomic): string {
     if (this.mode === "monthly") {
-      const now = meta?.metadata?.created_at ? new Date(meta.metadata.created_at) : new Date()
+      const now = atomic?.metadata?.created_at ? new Date(atomic.metadata.created_at) : new Date()
       const file = `${this.basePath}/ledger-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}.ndjson`
       return file
-    } else if (this.mode === "tenant" && meta?.metadata?.tenant_id) {
-      return `${this.basePath}/ledger-${meta.metadata.tenant_id}.ndjson`
+    } else if (this.mode === "tenant" && atomic?.metadata?.tenant_id) {
+      return `${this.basePath}/ledger-${atomic.metadata.tenant_id}.ndjson`
     }
     // Fallback padrão
     return `${this.basePath}/ledger.ndjson`
   }
 
-  async append(atomic: any) {
+  async append(atomic: Atomic): Promise<string> {
     const file = this.getCurrentLedgerFile(atomic)
     const ledger = new Ledger(file)
     return ledger.append(atomic)

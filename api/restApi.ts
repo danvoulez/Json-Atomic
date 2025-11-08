@@ -4,13 +4,25 @@ import { LedgerVerifier } from '../core/ledger/verifyLedger.ts'
 
 /**
  * REST API Layer: append, scan, query, verify + API Key Auth
+ * 
+ * SECURITY NOTE: This uses Deno environment variables.
+ * For production, ensure API_KEY is set via environment, not hardcoded.
+ * Default "changeme" is for development only.
  */
 
-const API_KEY = Deno.env.get("API_KEY") || "changeme"
-const ledger = new Ledger('./data/ledger.jsonl')
+const API_KEY = Deno.env.get("API_KEY")
+if (!API_KEY || API_KEY === "changeme") {
+  console.warn("⚠️  WARNING: API_KEY not set or using default 'changeme'. Set via environment for production!")
+}
+
+const LEDGER_PATH = Deno.env.get("LEDGER_PATH") || './data/ledger.jsonl'
+const ledger = new Ledger(LEDGER_PATH)
 const router = new Router()
 
-function auth(ctx: any) {
+function auth(ctx: any): boolean {
+  if (!API_KEY) {
+    return false
+  }
   const key = ctx.request.headers.get("x-api-key")
   return key === API_KEY
 }
@@ -37,8 +49,9 @@ router
   })
   .get("/verify", async (ctx) => {
     if (!auth(ctx)) return ctx.response.status = 401
-    const verifier = new LedgerVerifier()
-    const result = await verifier.verifyFile('./data/ledger.jsonl')
+    const publicKey = Deno.env.get("PUBLIC_KEY_HEX")
+    const verifier = new LedgerVerifier(publicKey)
+    const result = await verifier.verifyFile(LEDGER_PATH)
     ctx.response.body = result
   })
 
@@ -47,6 +60,7 @@ app.use(router.routes())
 app.use(router.allowedMethods())
 
 if (import.meta.main) {
-  app.listen({ port: 8000 })
-  console.log("REST API running on http://localhost:8000")
+  const port = parseInt(Deno.env.get("PORT") || "8000")
+  app.listen({ port })
+  console.log(`REST API running on http://localhost:${port}`)
 }

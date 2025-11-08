@@ -1,9 +1,9 @@
-export { Ledger } from './core/ledger/ledger.ts'
-export { LedgerVerifier } from './core/ledger/verifyLedger.ts'
-export { canonicalize } from './core/canonical.ts'
-export { signAtomic, verifySignature } from './core/crypto.ts'
-export { ContractValidator, CORE_CONTRACTS } from './core/contracts/validator.ts'
-export { CodeExecutor, AtomicExecutor } from './core/execution/executor.ts'
+export { Ledger } from './core/ledger/ledger.js'
+export { LedgerVerifier } from './core/ledger/verifyLedger.js'
+export { canonicalize } from './core/canonical.js'
+export { signAtomic, verifySignature, generateKeyPair } from './core/crypto.js'
+export { ContractValidator, CORE_CONTRACTS } from './core/contracts/validator.js'
+export { CodeExecutor, AtomicExecutor } from './core/execution/executor.js'
 
 // Re-export types
 export type {
@@ -11,7 +11,7 @@ export type {
   Contract,
   ExecutionResult,
   VerificationResult
-} from './types.ts'
+} from './types.js'
 
 // Version
 export const VERSION = '1.0.0'

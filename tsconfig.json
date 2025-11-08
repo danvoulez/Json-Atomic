@@ -1,0 +1,61 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
+  },
+  "include": [
+    "index.ts",
+    "types.ts",
+    "core/canonical.ts",
+    "core/crypto.ts",
+    "core/config/**/*.ts",
+    "core/domain/**/*.ts",
+    "core/application/**/*.ts",
+    "core/infrastructure/**/*.ts",
+    "core/ledger/ledger.ts",
+    "core/ledger/ledgerRotation.ts",
+    "core/ledger/verifyLedger.ts",
+    "core/contracts/validator.ts",
+    "core/execution/executor.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "tests",
+    "scripts",
+    "api",
+    "services",
+    "tools",
+    "sdk",
+    "site",
+    "core/security",
+    "core/storage",
+    "core/logging",
+    "core/indexing",
+    "core/graph",
+    "core/execution/llmAwareExecutor.ts",
+    "core/execution/semanticSpanDiff.ts"
+  ]
+}
+
+
