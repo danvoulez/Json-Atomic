@@ -124,8 +124,40 @@ core/
 **Phase 2: DDD & Repository Pattern** ✅ Complete  
 **Phase 3: Observability** ✅ Complete  
 **Phase 4: Testing** ✅ Complete  
-**Phase 5: API & Documentation** 📅 Next  
-**Phase 6: DevOps & CI/CD** 📅 Planned  
+**Phase 5: API & Documentation** ✅ Complete  
+**Phase 6: DevOps & CI/CD** ✅ Complete  
+
+🎉 **All Phases Complete!**
+
+## 🎮 Playground
+
+Experience Json✯Atomic in action with our **browser-based playground**!
+
+👉 **[Launch Playground](https://danvoulez.github.io/JsonAtomic/)** _(coming soon)_
+
+Features:
+- ✨ Monaco Editor (VSCode-like experience)
+- 🔐 Cryptographic operations (BLAKE3, Ed25519)
+- 📝 Interactive atomic creation and validation
+- 🎨 Beautiful dark theme
+- 💻 Runs 100% in your browser - no server needed!
+
+## 🐳 Docker
+
+```bash
+# Quick start with Docker
+docker-compose up -d
+
+# Or build and run
+docker build -t jsonatomic .
+docker run -p 8000:8000 -p 9090:9090 jsonatomic
+```
+
+## 📚 API Documentation
+
+- [OpenAPI Specification](./docs/api/openapi.yaml)
+- [API Reference](./docs/README.md)
+- Interactive API docs available at `/docs` when running the server
 
 ## 🤝 Contributing
 
@@ -137,6 +169,8 @@ MIT License - see LICENSE file for details
 
 ## 🔗 Links
 
-- [Issue Tracker](https://github.com/danvoulez/JsonAtomic/issues)
-- [Technical Plan](./TECHNICAL_IMPROVEMENTS.md)
-- [Documentation](./docs/README.md)
+- [🎮 Playground](https://danvoulez.github.io/JsonAtomic/) - Interactive browser playground
+- [📖 API Documentation](./docs/api/openapi.yaml) - OpenAPI specification
+- [🐛 Issue Tracker](https://github.com/danvoulez/JsonAtomic/issues)
+- [📋 Technical Plan](./TECHNICAL_IMPROVEMENTS.md)
+- [📚 Documentation](./docs/README.md)
