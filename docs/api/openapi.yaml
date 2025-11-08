@@ -1,0 +1,398 @@
+openapi: 3.0.3
+info:
+  title: Json✯Atomic API
+  description: |
+    Ledger-only constitutional governance platform with cryptographic integrity.
+    
+    ## Features
+    - **Append-only ledger** with JSONL format
+    - **BLAKE3 hashing** for integrity
+    - **Ed25519 signatures** for authenticity
+    - **Query and pagination** support
+    - **Health checks** and observability
+    
+    ## Authentication
+    All API endpoints except `/health` require API key authentication via the `X-API-Key` header.
+    
+  version: 1.0.0
+  contact:
+    name: JsonAtomic Team
+    url: https://github.com/danvoulez/JsonAtomic
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.jsonatomic.example.com
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Returns the health status of the service
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /metrics:
+    get:
+      summary: Prometheus Metrics
+      description: Returns Prometheus-compatible metrics
+      tags:
+        - Observability
+      security: []
+      responses:
+        '200':
+          description: Metrics in Prometheus text format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /append:
+    post:
+      summary: Append Atomic
+      description: Append a new atomic to the ledger
+      tags:
+        - Ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Atomic'
+            examples:
+              simple:
+                summary: Simple atomic
+                value:
+                  entity_type: document
+                  this:
+                    title: My Document
+                    content: Hello World
+                  did: did:example:alice
+                  trace_id: 550e8400-e29b-41d4-a716-446655440000
+      responses:
+        '201':
+          description: Atomic appended successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppendResponse'
+        '400':
+          description: Invalid atomic structure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate atomic (hash already exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /query:
+    get:
+      summary: Query Atomics
+      description: Query atomics by various criteria
+      tags:
+        - Ledger
+      parameters:
+        - name: trace_id
+          in: query
+          description: Filter by trace ID
+          schema:
+            type: string
+            format: uuid
+        - name: entity_type
+          in: query
+          description: Filter by entity type
+          schema:
+            type: string
+        - name: did
+          in: query
+          description: Filter by DID
+          schema:
+            type: string
+        - name: tenant_id
+          in: query
+          description: Filter by tenant ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          description: Results per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /verify:
+    post:
+      summary: Verify Atomic
+      description: Verify an atomic's hash and signature
+      tags:
+        - Ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - atomic
+              properties:
+                atomic:
+                  $ref: '#/components/schemas/Atomic'
+                public_key:
+                  type: string
+                  description: Public key for signature verification (hex)
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /stats:
+    get:
+      summary: Ledger Statistics
+      description: Get statistics about the ledger
+      tags:
+        - Ledger
+      responses:
+        '200':
+          description: Ledger statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+  schemas:
+    Atomic:
+      type: object
+      required:
+        - entity_type
+        - this
+        - did
+      properties:
+        entity_type:
+          type: string
+          description: Type of the entity
+          example: document
+        this:
+          description: The actual data payload
+          example: { "title": "My Document", "content": "Hello World" }
+        did:
+          type: string
+          description: Decentralized identifier
+          example: did:example:alice
+        metadata:
+          type: object
+          description: Additional metadata
+          additionalProperties: true
+        trace_id:
+          type: string
+          format: uuid
+          description: Unique trace identifier
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp
+        hash:
+          type: string
+          description: BLAKE3 hash (hex)
+          pattern: ^[a-f0-9]{64}$
+        signature:
+          type: string
+          description: Ed25519 signature (hex)
+          pattern: ^[a-f0-9]{128}$
+        previous_hash:
+          type: string
+          description: Hash of previous atomic for linking
+          pattern: ^[a-f0-9]{64}$
+
+    AppendResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        cursor:
+          type: string
+          description: Position in ledger
+        hash:
+          type: string
+          description: BLAKE3 hash of the atomic
+        message:
+          type: string
+          example: Atomic appended successfully
+
+    QueryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Atomic'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+            total_pages:
+              type: integer
+
+    VerifyResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        valid:
+          type: boolean
+          description: Whether the atomic is valid
+        hash_valid:
+          type: boolean
+          description: Whether the hash matches
+        signature_valid:
+          type: boolean
+          description: Whether the signature is valid
+        message:
+          type: string
+
+    StatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        stats:
+          type: object
+          properties:
+            total_count:
+              type: integer
+              description: Total number of atomics
+            by_entity_type:
+              type: object
+              additionalProperties:
+                type: integer
+            ledger_size_bytes:
+              type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        checks:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [pass, warn, fail]
+              value:
+                type: number
+              message:
+                type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
+
+tags:
+  - name: Health
+    description: Health and liveness checks
+  - name: Observability
+    description: Metrics and monitoring
+  - name: Ledger
+    description: Ledger operations (append, query, verify)

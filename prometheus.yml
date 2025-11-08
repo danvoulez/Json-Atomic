@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'jsonatomic'
+    static_configs:
+      - targets: ['jsonatomic:9090']
+        labels:
+          service: 'jsonatomic'
+          environment: 'development'
