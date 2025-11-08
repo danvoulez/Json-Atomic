@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 const ConfigSchema = z.object({
   app: z.object({
-    environment: z.enum(['development', 'staging', 'production']).default('production'),
+    environment: z.enum(['development', 'staging', 'production', 'test']).default('production'),
     name: z.string().default('logline-os'),
   }),
   database: z.object({
@@ -47,7 +47,7 @@ export type Config = z.infer<typeof ConfigSchema>
 export function loadConfig(): Config {
   const rawConfig = {
     app: {
-      environment: (process.env.NODE_ENV as 'development' | 'staging' | 'production') || 'production',
+      environment: (process.env.NODE_ENV as 'development' | 'staging' | 'production' | 'test') || 'production',
       name: process.env.APP_NAME || 'logline-os',
     },
     database: {
@@ -94,12 +94,23 @@ export function loadConfig(): Config {
 // Singleton instance
 let configInstance: Config | null = null
 
-function getConfig(): Config {
+export function getConfig(): Config {
   if (!configInstance) {
     configInstance = loadConfig()
   }
   return configInstance
 }
 
-// Export config singleton
-export const config = getConfig();
+// Reset config (useful for testing)
+export function resetConfig(): void {
+  configInstance = null
+}
+
+// Export a getter that returns config when accessed
+// This delays config loading until it's actually needed
+export const config = new Proxy({} as Config, {
+  get(_target, prop) {
+    return getConfig()[prop as keyof Config]
+  }
+})
+
