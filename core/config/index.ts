@@ -5,6 +5,10 @@
 import { z } from 'zod'
 
 const ConfigSchema = z.object({
+  app: z.object({
+    environment: z.enum(['development', 'staging', 'production']).default('production'),
+    name: z.string().default('logline-os'),
+  }),
   database: z.object({
     url: z.string().optional(),
     poolSize: z.number().min(1).max(100).default(10),
@@ -42,6 +46,10 @@ export type Config = z.infer<typeof ConfigSchema>
  */
 export function loadConfig(): Config {
   const rawConfig = {
+    app: {
+      environment: (process.env.NODE_ENV as 'development' | 'staging' | 'production') || 'production',
+      name: process.env.APP_NAME || 'logline-os',
+    },
     database: {
       url: process.env.DATABASE_URL,
       poolSize: process.env.DB_POOL_SIZE ? parseInt(process.env.DB_POOL_SIZE) : undefined,
@@ -86,9 +94,12 @@ export function loadConfig(): Config {
 // Singleton instance
 let configInstance: Config | null = null
 
-export function getConfig(): Config {
+function getConfig(): Config {
   if (!configInstance) {
     configInstance = loadConfig()
   }
   return configInstance
 }
+
+// Export config singleton
+export const config = getConfig();
