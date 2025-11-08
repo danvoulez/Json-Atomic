@@ -1,4 +1,4 @@
-# LogLineOS
+# Json✯Atomic
 
 **Ledger-only constitutional governance platform**
 
