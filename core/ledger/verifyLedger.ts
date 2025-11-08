@@ -145,15 +145,16 @@ export class LedgerVerifier {
         
       } catch (error) {
         invalid++
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         results.push({
           line: lineNum,
           valid: false,
           hash: 'error',
-          error: error.message
+          error: errorMessage
         })
         
         if (options.verbose) {
-          console.log(`Line ${lineNum}: ❌ parse error: ${error.message}`)
+          console.log(`Line ${lineNum}: ❌ parse error: ${errorMessage}`)
         }
         
         if (options.stopOnError) break
@@ -177,14 +178,15 @@ export class LedgerVerifier {
   }
 }
 
-// CLI usage
-if (import.meta.main) {
-  const verifier = new LedgerVerifier()
-  const ledgerPath = Deno.args[0] || './data/ledger.jsonl'
-  const publicKey = Deno.env.get('PUBLIC_KEY_HEX')
-  
-  await verifier.verifyFile(ledgerPath, {
-    verbose: true,
-    publicKeyHex: publicKey
-  })
-}
+// CLI usage - Deno only
+// Uncomment when using with Deno:
+// if (import.meta.main) {
+//   const verifier = new LedgerVerifier()
+//   const ledgerPath = Deno.args[0] || './data/ledger.jsonl'
+//   const publicKey = Deno.env.get('PUBLIC_KEY_HEX')
+//   
+//   await verifier.verifyFile(ledgerPath, {
+//     verbose: true,
+//     publicKeyHex: publicKey
+//   })
+// }
