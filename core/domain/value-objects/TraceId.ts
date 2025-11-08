@@ -30,13 +30,33 @@ export class TraceId {
   }
 
   public static generate(): TraceId {
-    // Simple UUID v4 generation
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0
-      const v = c === 'x' ? r : (r & 0x3 | 0x8)
-      return v.toString(16)
-    })
-    return new TraceId(uuid)
+    // Cryptographically secure UUID v4 generation using Node's crypto
+    // Note: For browser environments, use crypto.getRandomValues()
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      // Modern Node.js or browser with crypto.randomUUID()
+      return new TraceId(crypto.randomUUID())
+    } else {
+      // Fallback: Use crypto.getRandomValues() for secure random bytes
+      const bytes = new Uint8Array(16)
+      if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes)
+      } else if (typeof require !== 'undefined') {
+        // Node.js fallback
+        const nodeCrypto = require('crypto')
+        nodeCrypto.randomFillSync(bytes)
+      } else {
+        throw new Error('No cryptographically secure random source available')
+      }
+      
+      // Set version (4) and variant bits
+      bytes[6] = (bytes[6] & 0x0f) | 0x40
+      bytes[8] = (bytes[8] & 0x3f) | 0x80
+      
+      // Convert to UUID string
+      const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
+      const uuid = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`
+      return new TraceId(uuid)
+    }
   }
 
   private static isValid(value: string): boolean {
