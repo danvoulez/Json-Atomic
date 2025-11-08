@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans antialiased;
+  }
+  
+  * {
+    @apply border-gray-800;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-atomic-600 hover:bg-atomic-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-100 rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-xl;
+  }
+  
+  .input {
+    @apply bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-atomic-500 focus:border-transparent;
+  }
+  
+  .badge {
+    @apply px-2 py-1 rounded text-xs font-semibold;
+  }
+  
+  .badge-success {
+    @apply bg-green-900 text-green-300 border border-green-700;
+  }
+  
+  .badge-error {
+    @apply bg-red-900 text-red-300 border border-red-700;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-900 text-yellow-300 border border-yellow-700;
+  }
+  
+  .badge-info {
+    @apply bg-blue-900 text-blue-300 border border-blue-700;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600;
+}
