@@ -1,0 +1,47 @@
+{
+  "name": "logline-core",
+  "version": "1.0.0",
+  "description": "LogLineOS - Ledger-only constitutional governance platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "deno test --allow-all tests/",
+    "verify": "deno run --allow-read --allow-env tools/cli/logline-cli.ts verify",
+    "cli": "deno run --allow-all tools/cli/logline-cli.ts"
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./atomic": "./dist/atomic.js",
+    "./ledger": "./dist/ledger.js",
+    "./contracts": "./dist/contracts/index.js",
+    "./execution": "./dist/execution/index.js",
+    "./schemas": "./schemas/atomic.schema.json"
+  },
+  "keywords": [
+    "ledger",
+    "blockchain",
+    "governance",
+    "audit",
+    "cryptography",
+    "ed25519",
+    "blake3"
+  ],
+  "author": "LogLineOS Team",
+  "license": "MIT",
+  "dependencies": {
+    "@noble/curves": "^1.4.0",
+    "@noble/hashes": "^1.4.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
