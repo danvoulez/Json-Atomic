@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
+import type { editor } from 'monaco-editor';
 import { 
   Atomic, 
   canonicalize, 
@@ -26,12 +27,36 @@ function App() {
   const [keyPair, setKeyPair] = useState<KeyPair | null>(null);
   const [publicKeyInput, setPublicKeyInput] = useState<string>('');
   const [selectedExample, setSelectedExample] = useState<ExampleKey>('simple');
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
 
-  // Generate initial key pair
+  // Initialize dark mode and key pair
   useEffect(() => {
+    // Set initial theme
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+    }
+
+    // Generate initial key pair
     const keys = generateKeyPair();
     setKeyPair(keys);
   }, []);
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const root = document.documentElement;
+    setIsDarkMode((prev) => {
+      const newMode = !prev;
+      if (newMode) {
+        root.classList.remove('light');
+      } else {
+        root.classList.add('light');
+      }
+      return newMode;
+    });
+  };
 
   const parseAtomic = (): Atomic | null => {
     try {
@@ -180,254 +205,292 @@ function App() {
     setValidationErrors([]);
   };
 
+  const handleEditorMount = (editor: editor.IStandaloneCodeEditor) => {
+    // Define custom Monaco theme
+    const monaco = (window as any).monaco;
+    if (monaco) {
+      monaco.editor.defineTheme('jsonatomic-dark', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+          { token: 'string.key.json', foreground: '6E56CF' },
+          { token: 'string.value.json', foreground: 'A78BFA' },
+          { token: 'number', foreground: '8B5CF6' },
+        ],
+        colors: {
+          'editor.background': '#0f111a',
+          'editor.lineHighlightBackground': '#1a1d29',
+          'editorLineNumber.foreground': '#4B5563',
+          'editor.selectionBackground': '#6E56CF40',
+        },
+      });
+
+      monaco.editor.defineTheme('jsonatomic-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [
+          { token: 'string.key.json', foreground: '6E56CF' },
+          { token: 'string.value.json', foreground: '8B5CF6' },
+          { token: 'number', foreground: 'A78BFA' },
+        ],
+        colors: {
+          'editor.background': '#f5f7fb',
+          'editor.lineHighlightBackground': '#EDE9FE',
+          'editorLineNumber.foreground': '#9CA3AF',
+          'editor.selectionBackground': '#6E56CF20',
+        },
+      });
+
+      editor.updateOptions({ theme: isDarkMode ? 'jsonatomic-dark' : 'jsonatomic-light' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+    <div className="h-full grid grid-rows-[auto,1fr]">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-atomic-500 to-atomic-700 rounded-lg flex items-center justify-center">
-                <span className="text-2xl font-bold text-white">✯</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-atomic-400 to-atomic-600 bg-clip-text text-transparent">
-                  Json✯Atomic
-                </h1>
-                <p className="text-xs text-gray-400">Interactive Playground</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <a
-                href="https://github.com/danvoulez/JsonAtomic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-gray-200 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                </svg>
-              </a>
-            </div>
+      <header className="px-4 py-3 flex items-center justify-between border-b border-[var(--border)] sticky top-0 z-10 bg-[var(--bg)] backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-glow">
+            <span className="text-2xl font-bold text-white">✯</span>
           </div>
+          <div>
+            <h1 className="text-lg font-semibold bg-gradient-to-r from-brand-400 to-brand-600 bg-clip-text text-transparent">
+              Json✯Atomic Playground
+            </h1>
+            <p className="text-xs text-muted">Cryptographic ledger platform</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            className="btn btn-ghost text-sm" 
+            onClick={toggleDarkMode}
+            aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDarkMode ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+            <span className="hidden sm:inline">{isDarkMode ? 'Light' : 'Dark'}</span>
+          </button>
+          <a
+            href="https://github.com/danvoulez/JsonAtomic"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-ghost text-sm"
+            aria-label="View on GitHub"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+            </svg>
+            <span className="hidden sm:inline">GitHub</span>
+          </a>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Panel - Editor */}
-          <div className="space-y-4">
+      {/* Main Content */}
+      <main className="grid xl:grid-cols-[1fr,420px] gap-4 p-4 overflow-hidden">
+        {/* Left: Monaco Editor */}
+        <section className="monaco-wrap flex flex-col">
+          <div className="monaco-toolbar">
+            <span className="text-sm text-muted">Editor</span>
+            <div className="flex gap-2">
+              <button onClick={() => setAtomicJson(JSON.stringify(JSON.parse(atomicJson), null, 2))} className="btn btn-ghost text-xs">
+                Format
+              </button>
+              <button onClick={handleNewAtomic} className="btn btn-ghost text-xs">
+                New
+              </button>
+              <label className="btn btn-ghost text-xs cursor-pointer">
+                Import
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImport}
+                  className="hidden"
+                />
+              </label>
+              <button onClick={handleExport} className="btn btn-ghost text-xs">
+                Export
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 min-h-0">
+            <Editor
+              height="100%"
+              defaultLanguage="json"
+              value={atomicJson}
+              onChange={(value) => setAtomicJson(value || '')}
+              onMount={handleEditorMount}
+              theme={isDarkMode ? 'jsonatomic-dark' : 'jsonatomic-light'}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                fontFamily: 'var(--font-mono), monospace',
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                padding: { top: 16, bottom: 16 },
+                smoothScrolling: true,
+                cursorBlinking: 'smooth',
+                cursorSmoothCaretAnimation: 'on',
+              }}
+            />
+          </div>
+        </section>
+
+        {/* Right: Actions & Results */}
+        <aside className="space-y-4 overflow-y-auto max-h-[calc(100vh-120px)]">
+          {/* Examples */}
+          <div className="card">
+            <h2 className="text-sm font-semibold mb-2">Examples</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.entries(examples).map(([key, example]) => (
+                <button
+                  key={key}
+                  onClick={() => handleLoadExample(key as ExampleKey)}
+                  className={`px-3 py-2 text-xs rounded-lg transition-all text-left ${
+                    selectedExample === key
+                      ? 'bg-brand-600 text-white shadow-glow'
+                      : 'bg-white/5 hover:bg-white/10 light:bg-black/5 light:hover:bg-black/10'
+                  }`}
+                >
+                  <div className="font-medium">{example.name}</div>
+                  <div className="opacity-75 mt-0.5 text-[10px]">{example.description}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="card">
+            <h2 className="text-sm font-semibold mb-3">Actions</h2>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={handleValidate} className="btn btn-primary text-sm">
+                Validate
+              </button>
+              <button onClick={handleCanonicalize} className="btn btn-secondary text-sm">
+                Canonicalize
+              </button>
+              <button onClick={handleHash} className="btn btn-secondary text-sm">
+                Hash
+              </button>
+              <button onClick={handleSign} className="btn btn-primary text-sm">
+                Sign
+              </button>
+            </div>
+          </div>
+
+          {/* Verify Signature */}
+          <div className="card">
+            <h2 className="text-sm font-semibold mb-2">Verify Signature</h2>
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Public key (optional, uses generated key)"
+                value={publicKeyInput}
+                onChange={(e) => setPublicKeyInput(e.target.value)}
+                className="input text-xs"
+              />
+              <button onClick={handleVerify} className="btn btn-primary w-full text-sm">
+                Verify
+              </button>
+            </div>
+          </div>
+
+          {/* Cryptographic Keys */}
+          {keyPair && (
             <div className="card">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-100">Atomic Editor</h2>
-                <div className="flex space-x-2">
-                  <button onClick={handleNewAtomic} className="btn-secondary text-sm">
-                    New
-                  </button>
-                  <label className="btn-secondary text-sm cursor-pointer">
-                    Import
-                    <input
-                      type="file"
-                      accept=".json"
-                      onChange={handleImport}
-                      className="hidden"
-                    />
-                  </label>
-                  <button onClick={handleExport} className="btn-secondary text-sm">
-                    Export
-                  </button>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-sm font-semibold">Keys</h2>
+                <button
+                  onClick={() => setKeyPair(generateKeyPair())}
+                  className="btn btn-ghost text-xs"
+                >
+                  Regenerate
+                </button>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <label className="text-xs text-muted">Public Key</label>
+                  <div className="bg-white/5 light:bg-black/5 rounded px-2 py-1.5 font-mono text-[10px] overflow-x-auto">
+                    {keyPair.publicKey}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-muted">Private Key</label>
+                  <div className="bg-white/5 light:bg-black/5 rounded px-2 py-1.5 font-mono text-[10px] overflow-x-auto">
+                    {keyPair.privateKey}
+                  </div>
                 </div>
               </div>
-
-              <div className="border border-gray-800 rounded-lg overflow-hidden">
-                <Editor
-                  height="500px"
-                  defaultLanguage="json"
-                  value={atomicJson}
-                  onChange={(value) => setAtomicJson(value || '')}
-                  theme="vs-dark"
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    fontFamily: 'JetBrains Mono, monospace',
-                    lineNumbers: 'on',
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                  }}
-                />
-              </div>
             </div>
+          )}
 
-            {/* Examples */}
-            <div className="card">
-              <h3 className="text-sm font-semibold text-gray-100 mb-3">Examples</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(examples).map(([key, example]) => (
-                  <button
-                    key={key}
-                    onClick={() => handleLoadExample(key as ExampleKey)}
-                    className={`px-3 py-2 text-sm rounded-lg transition-colors text-left ${
-                      selectedExample === key
-                        ? 'bg-atomic-600 text-white'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    }`}
-                  >
-                    <div className="font-medium">{example.name}</div>
-                    <div className="text-xs opacity-75 mt-0.5">{example.description}</div>
-                  </button>
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <div className="card bg-red-900/20 ring-red-800/50">
+              <h3 className="text-sm font-semibold text-red-400 mb-2">Validation Errors</h3>
+              <div className="space-y-1">
+                {validationErrors.map((err, idx) => (
+                  <div key={idx} className="flex items-start gap-2 text-xs">
+                    <span className="text-red-400">•</span>
+                    <div>
+                      <span className="text-red-300 font-mono">{err.field}</span>
+                      <span className="text-gray-400">: {err.message}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
+          )}
 
-            {/* Cryptographic Keys */}
-            {keyPair && (
-              <div className="card">
-                <h3 className="text-sm font-semibold text-gray-100 mb-3">Cryptographic Keys</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Private Key (keep secret!)</label>
-                    <div className="bg-gray-800 rounded px-3 py-2 font-mono text-xs text-gray-300 overflow-x-auto">
-                      {keyPair.privateKey}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">Public Key</label>
-                    <div className="bg-gray-800 rounded px-3 py-2 font-mono text-xs text-gray-300 overflow-x-auto">
-                      {keyPair.publicKey}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setKeyPair(generateKeyPair())}
-                    className="btn-secondary text-sm w-full"
-                  >
-                    Generate New Key Pair
-                  </button>
+          {/* Error */}
+          {error && (
+            <div className="card bg-red-900/20 ring-red-800/50">
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 text-lg">⚠</span>
+                <div>
+                  <h3 className="text-sm font-semibold text-red-400 mb-1">Error</h3>
+                  <p className="text-xs text-gray-300">{error}</p>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Right Panel - Actions & Output */}
-          <div className="space-y-4">
-            {/* Actions */}
+          {/* Output */}
+          {output && (
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-100 mb-4">Actions</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <button onClick={handleValidate} className="btn-primary">
-                  Validate
-                </button>
-                <button onClick={handleCanonicalize} className="btn-secondary">
-                  Canonicalize
-                </button>
-                <button onClick={handleHash} className="btn-secondary">
-                  Hash
-                </button>
-                <button onClick={handleSign} className="btn-primary">
-                  Sign
-                </button>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-800">
-                <h3 className="text-sm font-semibold text-gray-100 mb-3">Verify Signature</h3>
-                <input
-                  type="text"
-                  placeholder="Public key (optional, uses generated key)"
-                  value={publicKeyInput}
-                  onChange={(e) => setPublicKeyInput(e.target.value)}
-                  className="input w-full mb-3 text-sm"
-                />
-                <button onClick={handleVerify} className="btn-primary w-full">
-                  Verify
-                </button>
+              <h3 className="text-sm font-semibold mb-2">Result</h3>
+              <div className="bg-[var(--panel)] rounded-lg p-3 ring-1 ring-white/5 light:ring-black/10">
+                <pre className="font-mono text-[10px] whitespace-pre-wrap break-all leading-relaxed">
+                  {output}
+                </pre>
               </div>
             </div>
+          )}
 
-            {/* Validation Errors */}
-            {validationErrors.length > 0 && (
-              <div className="card bg-red-900/20 border-red-800">
-                <h3 className="text-sm font-semibold text-red-400 mb-3">Validation Errors</h3>
-                <div className="space-y-2">
-                  {validationErrors.map((err, idx) => (
-                    <div key={idx} className="flex items-start space-x-2">
-                      <span className="text-red-400 mt-0.5">•</span>
-                      <div>
-                        <span className="text-red-300 font-mono text-sm">{err.field}</span>
-                        <span className="text-gray-400 text-sm">: {err.message}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Error */}
-            {error && (
-              <div className="card bg-red-900/20 border-red-800">
-                <div className="flex items-start space-x-2">
-                  <span className="text-red-400 text-xl">⚠</span>
-                  <div>
-                    <h3 className="text-sm font-semibold text-red-400 mb-1">Error</h3>
-                    <p className="text-sm text-gray-300">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Output */}
-            {output && (
-              <div className="card">
-                <h3 className="text-sm font-semibold text-gray-100 mb-3">Output</h3>
-                <div className="bg-gray-950 rounded-lg p-4 border border-gray-800">
-                  <pre className="font-mono text-xs text-gray-300 whitespace-pre-wrap break-all">
-                    {output}
-                  </pre>
-                </div>
-              </div>
-            )}
-
-            {/* Info Card */}
-            <div className="card bg-atomic-900/20 border-atomic-800">
-              <h3 className="text-sm font-semibold text-atomic-400 mb-3">About Json✯Atomic</h3>
-              <div className="text-sm text-gray-300 space-y-2">
-                <p>
-                  Json✯Atomic is a ledger-only constitutional governance platform with cryptographic integrity.
-                </p>
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center space-x-2">
-                    <span className="badge badge-success">BLAKE3</span>
-                    <span className="text-gray-400">Cryptographic hashing</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="badge badge-success">Ed25519</span>
-                    <span className="text-gray-400">Digital signatures</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="badge badge-info">Browser-only</span>
-                    <span className="text-gray-400">No server required</span>
-                  </div>
-                </div>
+          {/* Info */}
+          <div className="card bg-brand-900/10 ring-brand-800/30">
+            <h3 className="text-sm font-semibold text-brand-400 mb-2">About Json✯Atomic</h3>
+            <div className="text-xs text-muted space-y-2">
+              <p>
+                Ledger-based constitutional governance platform with cryptographic integrity.
+              </p>
+              <div className="flex flex-wrap gap-1">
+                <span className="badge badge-success">BLAKE3</span>
+                <span className="badge badge-success">Ed25519</span>
+                <span className="badge badge-info">Browser-only</span>
+                <span className="badge badge-info">No server</span>
               </div>
             </div>
           </div>
-        </div>
+        </aside>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-800 bg-gray-900/50 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center text-sm text-gray-400">
-            <p>
-              Built with ❤️ using React, TypeScript, and Vite •{' '}
-              <a href="https://github.com/danvoulez/JsonAtomic" className="text-atomic-400 hover:text-atomic-300">
-                View on GitHub
-              </a>
-            </p>
-            <p className="mt-2 text-xs">
-              Licensed under MIT • Runs entirely in your browser
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
