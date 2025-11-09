@@ -5,70 +5,85 @@
 import { blake3 } from '@noble/hashes/blake3'
 import { ed25519 } from '@noble/curves/ed25519'
 import { canonicalize } from './canonical.js'
-import type { Atomic } from '../types.js'
-
-export interface SignedAtomic {
-  curr_hash: string
-  signature: string
-}
+import type { Atomic, Signature } from '../types.js'
 
 /**
- * Generate a deterministic hash for an atomic
+ * Domain separation context for BLAKE3 hashing
+ */
+const HASH_CONTEXT = 'JsonAtomic/v1'
+
+/**
+ * Generate a deterministic hash for an atomic with domain separation
  */
 export function hashAtomic(atomic: Atomic): string {
   const atomicForHash = { ...atomic }
-  delete (atomicForHash as any).curr_hash
+  delete (atomicForHash as any).hash
   delete (atomicForHash as any).signature
   
   const canonical = canonicalize(atomicForHash)
-  const hashBytes = blake3(new TextEncoder().encode(canonical))
+  // Use BLAKE3 with domain separation context
+  const hashBytes = blake3(new TextEncoder().encode(canonical), { context: HASH_CONTEXT })
   return Buffer.from(hashBytes).toString('hex')
 }
 
 /**
- * Sign an atomic with a private key
+ * Sign an atomic with a private key, returning structured signature
  */
 export async function signAtomic(
   atomic: Atomic,
   privateKeyHex?: string
-): Promise<SignedAtomic> {
+): Promise<{ hash: string; signature?: Signature }> {
   const hash = hashAtomic(atomic)
   
   if (!privateKeyHex) {
     // Return unsigned if no key provided
-    return { curr_hash: hash, signature: '' }
+    return { hash }
   }
   
   const privateKey = Uint8Array.from(Buffer.from(privateKeyHex, 'hex'))
+  const publicKey = ed25519.getPublicKey(privateKey)
   const signatureBytes = ed25519.sign(
     new TextEncoder().encode(hash),
     privateKey
   )
   
-  return {
-    curr_hash: hash,
-    signature: Buffer.from(signatureBytes).toString('hex')
+  const signature: Signature = {
+    alg: 'Ed25519',
+    public_key: Buffer.from(publicKey).toString('hex'),
+    sig: Buffer.from(signatureBytes).toString('hex'),
+    signed_at: new Date().toISOString()
   }
+  
+  return { hash, signature }
 }
 
 /**
- * Verify an atomic's signature
+ * Verify an atomic's signature with structured signature object
  */
 export function verifySignature(
   atomic: Atomic,
-  publicKeyHex: string
+  publicKeyHex?: string
 ): boolean {
-  if (!atomic.curr_hash || !atomic.signature) {
+  if (!atomic.hash || !atomic.signature) {
     return false
   }
   
-  const publicKey = Uint8Array.from(Buffer.from(publicKeyHex, 'hex'))
-  const signatureBytes = Uint8Array.from(Buffer.from(atomic.signature, 'hex'))
+  const signature = atomic.signature
+  
+  // Verify signature structure
+  if (signature.alg !== 'Ed25519' || !signature.public_key || !signature.sig) {
+    return false
+  }
+  
+  // Use provided public key or the one from signature
+  const keyToUse = publicKeyHex || signature.public_key
+  const publicKey = Uint8Array.from(Buffer.from(keyToUse, 'hex'))
+  const signatureBytes = Uint8Array.from(Buffer.from(signature.sig, 'hex'))
   
   try {
     return ed25519.verify(
       signatureBytes,
-      new TextEncoder().encode(atomic.curr_hash),
+      new TextEncoder().encode(atomic.hash),
       publicKey
     )
   } catch {

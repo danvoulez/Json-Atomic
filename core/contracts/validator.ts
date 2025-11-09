@@ -33,8 +33,8 @@ export class ContractValidator {
       errors.push('Missing this field')
     }
 
-    if (!atomic.metadata?.trace_id) {
-      errors.push('Missing trace_id in metadata')
+    if (!atomic.trace_id) {
+      errors.push('Missing trace_id')
     }
 
     return {

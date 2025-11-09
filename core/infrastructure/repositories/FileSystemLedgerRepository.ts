@@ -42,18 +42,18 @@ export class FileSystemLedgerRepository implements ILedgerRepository {
   async append(atomic: Atomic): Promise<Result<Cursor, RepositoryError>> {
     try {
       // Validate atomic
-      if (!atomic.entity_type || !atomic.this || !atomic.metadata?.trace_id) {
+      if (!atomic.entity_type || !atomic.this || !atomic.trace_id) {
         return Result.fail(
           new RepositoryError('Invalid atomic: missing required fields')
         )
       }
 
       // Add hash if not present
-      if (!atomic.curr_hash) {
-        atomic.curr_hash = hashAtomic(atomic)
+      if (!atomic.hash) {
+        atomic.hash = hashAtomic(atomic)
       }
 
-      const hash = Hash.createUnsafe(atomic.curr_hash)
+      const hash = Hash.createUnsafe(atomic.hash)
 
       // Check for duplicates
       const existsResult = await this.exists(hash)
@@ -75,7 +75,7 @@ export class FileSystemLedgerRepository implements ILedgerRepository {
 
       // Update cache if enabled
       if (this.cacheEnabled) {
-        this.cache.set(atomic.curr_hash, atomic)
+        this.cache.set(atomic.hash, atomic)
       }
 
       return Result.ok(Cursor.createUnsafe(lineCount + 1))
