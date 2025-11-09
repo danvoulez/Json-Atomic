@@ -1,6 +1,6 @@
 # Migration Guide: v1.0.0 → v1.1.0
 
-This guide helps you migrate from JsonAtomic/LogLineOS v1.0.0 to v1.1.0.
+This guide helps you migrate from JSON✯Atomic v1.0.0 to v1.1.0.
 
 ## Overview
 

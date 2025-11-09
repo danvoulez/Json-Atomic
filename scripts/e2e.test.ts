@@ -1,5 +1,5 @@
 /**
- * Teste ponta-a-ponta LogLineOS
+ * Teste ponta-a-ponta JSON✯Atomic
  * - Gera atomic span, assina, inclui no ledger, executa pelo observer, verifica resultado e exporta NDJSON
  */
 

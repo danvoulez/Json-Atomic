@@ -1,7 +1,7 @@
 {
-  "name": "logline-core",
+  "name": "json-atomic",
   "version": "1.1.0",
-  "description": "LogLineOS - Ledger-based constitutional governance platform with production-grade security",
+  "description": "JSON✯Atomic - Lightweight, versatile backend with universal JSON language and AI-native design",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -36,7 +36,7 @@
     "ed25519",
     "blake3"
   ],
-  "author": "LogLineOS Team",
+  "author": "JSON✯Atomic Team",
   "license": "MIT",
   "dependencies": {
     "@noble/curves": "^1.4.0",

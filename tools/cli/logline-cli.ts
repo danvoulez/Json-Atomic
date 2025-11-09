@@ -64,7 +64,7 @@ function exitWithError(code: string, message: string, details?: any) {
 
 if (args.help || !command) {
   console.log(`
-LogLineOS CLI v${VERSION}
+JSON✯Atomic CLI v${VERSION}
 
 USAGE:
   logline-cli [command] [options]

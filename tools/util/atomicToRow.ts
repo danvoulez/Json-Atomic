@@ -1,7 +1,7 @@
 /**
  * Transpõe um Atomic JSON para ROW: SQL/CSV
  * - Cria uma linha (objeto plano) com colunas definidas por schema
- * - Nested são normalizados conforme padrão LogLineOS
+ * - Nested são normalizados conforme padrão JSON✯Atomic
  */
 type Atomic = Record<string, any>
 
@@ -41,7 +41,7 @@ export function atomicToRow(atomic: Atomic): Record<string, string> {
     row.status = atomic.status.current || atomic.status.state || atomic.status.result || ""
   }
 
-  // Outros padrões típicos LogLineOS
+  // Outros padrões típicos JSON✯Atomic
   if (atomic.entity_type) row.entity_type = atomic.entity_type
   if (atomic.intent) row.intent = atomic.intent
   if (atomic.metadata?.trace_id) row.trace_id = atomic.metadata.trace_id
