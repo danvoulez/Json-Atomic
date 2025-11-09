@@ -6,10 +6,30 @@
 [![Security](https://img.shields.io/badge/security-0%20vulnerabilities-brightgreen)]()
 [![TypeScript](https://img.shields.io/badge/typescript-strict-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)]()
+
+## 🎉 Version 1.1.0 Released!
+
+**Production-ready hardening with enhanced security and scalability!**
+
+### Key Features
+
+- 🔒 **Structured Signatures** - Ed25519 signatures with embedded public keys
+- ⚡ **Domain-Separated Hashing** - BLAKE3 with context "JsonAtomic/v1"
+- 🌊 **Streaming Verification** - Memory-efficient ledger validation (handles GB-sized files)
+- 🔗 **Chain Validation** - Detect broken chains and forks
+- 🛡️ **Safe-by-Default** - Code execution disabled unless explicitly enabled
+- 📊 **Enhanced CLI** - Multiple output formats (json, ndjson, table)
+- 🏗️ **Production Ready** - Hardened Docker, SBOM, vulnerability scanning
+- 📚 **Comprehensive Docs** - Migration guide, threat model, operations manual
+
+**[See CHANGELOG.md](./CHANGELOG.md) for full details | [Migration Guide](./MIGRATION.md)**
+
+---
 
 ## ✨ Recent Improvements
 
-**Phases 1-4 Complete!** - Comprehensive technical improvements implemented:
+**Phases 1-6 Complete!** - Comprehensive technical improvements implemented:
 
 - ✅ **TypeScript Strict Mode** - Full type safety
 - ✅ **Domain-Driven Design** - Clean architecture
@@ -153,11 +173,39 @@ docker build -t jsonatomic .
 docker run -p 8000:8000 -p 9090:9090 jsonatomic
 ```
 
-## 📚 API Documentation
+## 📚 Documentation
 
-- [OpenAPI Specification](./docs/api/openapi.yaml)
-- [API Reference](./docs/README.md)
+### Core Documentation
+- **[CHANGELOG.md](./CHANGELOG.md)** - Version history and changes
+- **[MIGRATION.md](./MIGRATION.md)** - Upgrade guide from 1.0.0 to 1.1.0
+- **[THREAT_MODEL.md](./THREAT_MODEL.md)** - Security analysis and mitigations
+- **[OPERATIONS.md](./OPERATIONS.md)** - Production deployment and operations
+
+### API & Technical
+- **[OpenAPI Specification](./docs/api/openapi.yaml)** - REST API specification
+- **[API Reference](./docs/README.md)** - Detailed API documentation
+- **[Implementation Summary](./IMPLEMENTATION_SUMMARY.md)** - Technical details
+- **[Technical Improvements](./TECHNICAL_IMPROVEMENTS.md)** - Enhancement roadmap
 - Interactive API docs available at `/docs` when running the server
+
+## 🎯 Production Deployment
+
+See **[OPERATIONS.md](./OPERATIONS.md)** for comprehensive deployment guide including:
+- Docker and Kubernetes configurations
+- Key management and rotation
+- Monitoring and observability
+- Backup and recovery procedures
+- Troubleshooting common issues
+
+Quick Docker deployment:
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -p 9090:9090 \
+  -v ./data:/app/data \
+  -e PUBLIC_KEY_HEX=$PUBLIC_KEY_HEX \
+  jsonatomic/core:1.1.0
+```
 
 ## 🤝 Contributing
 
