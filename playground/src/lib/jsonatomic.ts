@@ -7,15 +7,26 @@ import { blake3 } from '@noble/hashes/blake3';
 import { ed25519 } from '@noble/curves/ed25519';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 
+// Domain separation context for BLAKE3 hashing
+const HASH_CONTEXT = 'JsonAtomic/v1';
+
+export interface Signature {
+  alg: 'Ed25519';
+  public_key: string;
+  sig: string;
+  signed_at?: string;
+}
+
 export interface Atomic {
   entity_type: string;
   this: any;
-  did: string;
+  did: { actor: string; action: string; reason?: string };
   metadata?: Record<string, any>;
   trace_id?: string;
   hash?: string;
-  signature?: string;
+  signature?: Signature;
   previous_hash?: string;
+  prev?: string;
   timestamp?: string;
   [key: string]: any;
 }
@@ -55,13 +66,20 @@ export function canonicalize(obj: any): string {
 }
 
 /**
- * Hash an atomic using BLAKE3
+ * Hash an atomic using domain-separated BLAKE3
  */
 export function hashAtomic(atomic: Atomic): string {
   // Remove hash and signature fields before hashing
   const { hash, signature, ...atomicWithoutHash } = atomic;
   const canonical = canonicalize(atomicWithoutHash);
-  const hashBytes = blake3(canonical);
+  
+  // Use domain separation with context
+  const encoder = new TextEncoder();
+  const data = encoder.encode(canonical);
+  const context = encoder.encode(HASH_CONTEXT);
+  
+  // BLAKE3 with context (domain separation)
+  const hashBytes = blake3(data, { context: HASH_CONTEXT });
   return bytesToHex(hashBytes);
 }
 
@@ -79,40 +97,53 @@ export function generateKeyPair(): { privateKey: string; publicKey: string } {
 }
 
 /**
- * Sign an atomic with Ed25519
+ * Sign an atomic with Ed25519 and return structured signature
  */
 export function signAtomic(atomic: Atomic, privateKeyHex: string): Atomic {
   // Calculate hash
   const hash = hashAtomic(atomic);
   
-  // Sign the hash
+  // Get public key from private key
   const privateKey = hexToBytes(privateKeyHex);
+  const publicKey = ed25519.getPublicKey(privateKey);
+  
+  // Sign the hash
   const signature = ed25519.sign(hash, privateKey);
+  
+  const structuredSignature: Signature = {
+    alg: 'Ed25519',
+    public_key: bytesToHex(publicKey),
+    sig: bytesToHex(signature),
+    signed_at: new Date().toISOString()
+  };
   
   return {
     ...atomic,
     hash,
-    signature: bytesToHex(signature),
+    signature: structuredSignature,
   };
 }
 
 /**
  * Verify an atomic signature
  */
-export function verifySignature(
-  atomic: Atomic,
-  publicKeyHex: string
-): boolean {
+export function verifySignature(atomic: Atomic): boolean {
   if (!atomic.hash || !atomic.signature) {
     return false;
   }
   
+  const sig = atomic.signature as Signature;
+  
+  if (sig.alg !== 'Ed25519') {
+    return false;
+  }
+  
   try {
-    const publicKey = hexToBytes(publicKeyHex);
-    const signature = hexToBytes(atomic.signature);
+    const publicKey = hexToBytes(sig.public_key);
+    const signatureBytes = hexToBytes(sig.sig);
     
     // Verify signature
-    const isValid = ed25519.verify(signature, atomic.hash, publicKey);
+    const isValid = ed25519.verify(signatureBytes, atomic.hash, publicKey);
     
     // Also verify hash matches
     const expectedHash = hashAtomic(atomic);
@@ -145,8 +176,15 @@ export function validateAtomic(atomic: any): ValidationError[] {
     errors.push({ field: 'entity_type', message: 'Required string field' });
   }
   
-  if (!atomic.did || typeof atomic.did !== 'string') {
-    errors.push({ field: 'did', message: 'Required string field (decentralized identifier)' });
+  if (!atomic.did || typeof atomic.did !== 'object') {
+    errors.push({ field: 'did', message: 'Required object field (decentralized identifier)' });
+  } else {
+    if (!atomic.did.actor || typeof atomic.did.actor !== 'string') {
+      errors.push({ field: 'did.actor', message: 'Required string field' });
+    }
+    if (!atomic.did.action || typeof atomic.did.action !== 'string') {
+      errors.push({ field: 'did.action', message: 'Required string field' });
+    }
   }
   
   if (atomic.this === undefined) {
@@ -162,8 +200,21 @@ export function validateAtomic(atomic: any): ValidationError[] {
     errors.push({ field: 'hash', message: 'Must be a hex string' });
   }
   
-  if (atomic.signature !== undefined && typeof atomic.signature !== 'string') {
-    errors.push({ field: 'signature', message: 'Must be a hex string' });
+  if (atomic.signature !== undefined) {
+    if (typeof atomic.signature !== 'object' || atomic.signature === null) {
+      errors.push({ field: 'signature', message: 'Must be a Signature object' });
+    } else {
+      const sig = atomic.signature as Signature;
+      if (sig.alg !== 'Ed25519') {
+        errors.push({ field: 'signature.alg', message: 'Must be "Ed25519"' });
+      }
+      if (!sig.public_key || typeof sig.public_key !== 'string') {
+        errors.push({ field: 'signature.public_key', message: 'Required hex string (64 chars)' });
+      }
+      if (!sig.sig || typeof sig.sig !== 'string') {
+        errors.push({ field: 'signature.sig', message: 'Required hex string (128 chars)' });
+      }
+    }
   }
   
   if (atomic.metadata !== undefined) {
@@ -188,7 +239,7 @@ export function generateUUID(): string {
 export function createAtomic(params: {
   entity_type: string;
   this: any;
-  did: string;
+  did: { actor: string; action: string; reason?: string };
   metadata?: Record<string, any>;
   trace_id?: string;
 }): Atomic {

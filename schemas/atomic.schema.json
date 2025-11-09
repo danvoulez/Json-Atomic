@@ -6,6 +6,7 @@
   "type": "object",
   "required": ["entity_type", "this"],
   "properties": {
+    "schema_version": { "type": "string", "const": "1.1.0" },
     "entity_type": { "type": "string", "enum": ["file", "function", "law", "decision", "agent", "contract", "test"] },
     "intent": { "type": "string", "enum": ["run_code", "shell_cmd", "law_test", "contract_eval", "file_write", "file_read", "http_call"] },
     "this": { "type": "string", "pattern": "^[/\\w\\-\\.]+$" },
@@ -78,8 +79,22 @@
       },
       "required": ["trace_id", "created_at"]
     },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "curr_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-    "signature": { "type": "string", "pattern": "^[a-f0-9]{128}$" }
+    "signature": { "$ref": "#/$defs/Signature" }
+  },
+  "$defs": {
+    "Signature": {
+      "type": "object",
+      "properties": {
+        "alg": { "type": "string", "enum": ["Ed25519"] },
+        "public_key": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "sig": { "type": "string", "pattern": "^[0-9a-fA-F]{128}$" },
+        "signed_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["alg", "public_key", "sig"],
+      "additionalProperties": false
+    }
   },
   "definitions": {
     "policyAction": {
@@ -97,5 +112,15 @@
       ]
     }
   },
+  "oneOf": [
+    {
+      "description": "Genesis atomic (first in chain) - no prev field",
+      "not": { "required": ["prev"] }
+    },
+    {
+      "description": "Chain atomic - must have prev field",
+      "required": ["prev"]
+    }
+  ],
   "additionalProperties": false
 }
