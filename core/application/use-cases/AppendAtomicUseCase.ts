@@ -50,17 +50,17 @@ export class AppendAtomicUseCase {
     }
 
     // Ensure atomic has a hash
-    if (!command.atomic.curr_hash) {
-      command.atomic.curr_hash = hashAtomic(command.atomic)
+    if (!command.atomic.hash) {
+      command.atomic.hash = hashAtomic(command.atomic)
     }
 
-    const hash = Hash.createUnsafe(command.atomic.curr_hash)
+    const hash = Hash.createUnsafe(command.atomic.hash)
 
     // Sign if key provided
     let signed = false
     if (command.signWithKey) {
       const signResult = await signAtomic(command.atomic, command.signWithKey)
-      command.atomic.curr_hash = signResult.curr_hash
+      command.atomic.hash = signResult.hash
       command.atomic.signature = signResult.signature
       signed = true
     }
@@ -106,12 +106,13 @@ export class AppendAtomicUseCase {
       }
     }
 
+    if (!atomic.trace_id) {
+      errors.push('trace_id is required')
+    }
+
     if (!atomic.metadata) {
       errors.push('metadata is required')
     } else {
-      if (!atomic.metadata.trace_id) {
-        errors.push('metadata.trace_id is required')
-      }
       if (!atomic.metadata.created_at) {
         errors.push('metadata.created_at is required')
       }

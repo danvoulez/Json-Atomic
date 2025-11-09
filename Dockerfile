@@ -1,14 +1,17 @@
 # Multi-stage Dockerfile for JsonAtomic
+# Production-hardened with non-root user, read-only filesystem, and minimal capabilities
+
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:20.18.1-alpine3.20 AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies with npm ci for reproducible builds
+RUN npm ci --only=production && \
+    npm cache clean --force
 
 # Copy source code
 COPY . .
@@ -17,7 +20,11 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Runtime
-FROM node:20-alpine AS runtime
+FROM node:20.18.1-alpine3.20 AS runtime
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S jsonatomic && \
+    adduser -u 1001 -S jsonatomic -G jsonatomic
 
 WORKDIR /app
 
@@ -26,20 +33,21 @@ COPY package*.json ./
 
 # Install only production dependencies
 RUN npm ci --only=production && \
-    npm cache clean --force
+    npm cache clean --force && \
+    rm -rf /root/.npm
 
 # Copy built files from builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/schemas ./schemas
+COPY --from=builder --chown=jsonatomic:jsonatomic /app/dist ./dist
+COPY --from=builder --chown=jsonatomic:jsonatomic /app/schemas ./schemas
 
-# Create data directory
+# Create data directory with proper permissions
 RUN mkdir -p /app/data && \
-    chown -R node:node /app
+    chown -R jsonatomic:jsonatomic /app
 
-# Use non-root user
-USER node
+# Security: Use non-root user
+USER jsonatomic:jsonatomic
 
-# Expose ports
+# Expose ports (non-privileged)
 EXPOSE 8000 9090
 
 # Health check
@@ -52,5 +60,15 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     LEDGER_PATH=/app/data/ledger.jsonl
 
+# Security labels for metadata
+LABEL org.opencontainers.image.title="JsonAtomic" \
+      org.opencontainers.image.description="Ledger-based constitutional governance platform" \
+      org.opencontainers.image.version="1.1.0" \
+      org.opencontainers.image.vendor="LogLineOS" \
+      org.opencontainers.image.source="https://github.com/danvoulez/JsonAtomic" \
+      org.opencontainers.image.licenses="MIT"
+
 # Start the application
+# Note: To run with read-only filesystem, mount /app/data as writable:
+# docker run --read-only -v data:/app/data --tmpfs /tmp jsonatomic
 CMD ["node", "dist/index.js"]

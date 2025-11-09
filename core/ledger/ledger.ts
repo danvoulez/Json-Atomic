@@ -33,18 +33,18 @@ export class Ledger {
    */
   async append(atomic: Atomic): Promise<string> {
     // Validate atomic has required fields
-    if (!atomic.entity_type || !atomic.this || !atomic.metadata?.trace_id) {
+    if (!atomic.entity_type || !atomic.this || !atomic.trace_id) {
       throw new Error('Invalid atomic: missing required fields')
     }
     
     // Add hash if not present
-    if (!atomic.curr_hash) {
-      atomic.curr_hash = hashAtomic(atomic)
+    if (!atomic.hash) {
+      atomic.hash = hashAtomic(atomic)
     }
     
     // Check for duplicates
-    const existing = await this.query({ trace_id: atomic.metadata.trace_id })
-    if (existing.length > 0 && existing.some(a => a.curr_hash === atomic.curr_hash)) {
+    const existing = await this.query({ trace_id: atomic.trace_id })
+    if (existing.length > 0 && existing.some(a => a.hash === atomic.hash)) {
       throw new Error('Duplicate atomic detected')
     }
     

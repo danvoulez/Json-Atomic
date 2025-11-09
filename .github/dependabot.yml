@@ -1,0 +1,106 @@
+# Dependabot configuration for JsonAtomic/LogLineOS
+# Automatically checks for dependency updates and security vulnerabilities
+
+version: 2
+updates:
+  # Core dependencies (npm)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "danvoulez"
+    assignees:
+      - "danvoulez"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Group minor and patch updates
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+    # Ignore major version updates for critical dependencies
+    ignore:
+      - dependency-name: "@noble/hashes"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@noble/curves"
+        update-types: ["version-update:semver-major"]
+  
+  # Playground dependencies (npm)
+  - package-ecosystem: "npm"
+    directory: "/playground"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "danvoulez"
+    assignees:
+      - "danvoulez"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "playground"
+    commit-message:
+      prefix: "chore(deps-playground)"
+      include: "scope"
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+  
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "danvoulez"
+    assignees:
+      - "danvoulez"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps-gha)"
+      include: "scope"
+  
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "danvoulez"
+    assignees:
+      - "danvoulez"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(deps-docker)"
+      include: "scope"

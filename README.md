@@ -1,23 +1,60 @@
 # Json✯Atomic
 
-**Ledger-only constitutional governance platform**
+**Production-grade ledger-based constitutional governance platform**
 
+[![Version](https://img.shields.io/badge/version-1.1.0-blue)]()
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
-[![Security](https://img.shields.io/badge/security-0%20vulnerabilities-brightgreen)]()
+[![Security](https://img.shields.io/badge/security-hardened-brightgreen)]()
 [![TypeScript](https://img.shields.io/badge/typescript-strict-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
+## 🎯 Version 1.1.0 - Production Hardening Release
+
+**Major security and reliability improvements for production deployments!**
+
+### What's New
+
+- **🔒 Enhanced Security**: Domain-separated cryptography, structured signatures, CSP headers
+- **📊 Streaming Verification**: Memory-safe ledger verification for any file size
+- **🔍 Fork Detection**: Automatically detect and report chain forks
+- **🛠️ Enhanced CLI**: New commands (sign, hash, lint), multiple output formats
+- **📦 Supply Chain**: SBOM generation, Trivy scanning, Dependabot integration
+- **🐳 Hardened Docker**: Non-root user, pinned versions, read-only filesystem support
+- **📚 Complete Documentation**: Migration guide, threat model, operations guide
+
+### Breaking Changes
+
+⚠️ **Version 1.1.0 introduces breaking changes.** See [MIGRATION.md](./MIGRATION.md) for upgrade instructions.
+
+Key changes:
+- `curr_hash` → `hash`
+- `metadata.trace_id` → `trace_id` (top-level)
+- Signature format changed from string to structured object
+- Schema now requires `schema_version: "1.1.0"`
+- Hash computation uses domain separation (all hashes will change)
+
+### Documentation
+
+- **[CHANGELOG.md](./CHANGELOG.md)** - Complete list of changes
+- **[MIGRATION.md](./MIGRATION.md)** - Upgrade guide from v1.0.0
+- **[THREAT_MODEL.md](./THREAT_MODEL.md)** - Security analysis and controls
+- **[OPERATIONS.md](./OPERATIONS.md)** - Deployment and maintenance guide
+
+---
+
 ## ✨ Recent Improvements
 
-**Phases 1-4 Complete!** - Comprehensive technical improvements implemented:
+**Phases 1-6 Complete!** - Comprehensive technical improvements implemented:
 
 - ✅ **TypeScript Strict Mode** - Full type safety
 - ✅ **Domain-Driven Design** - Clean architecture
-- ✅ **Security Hardening** - 0 vulnerabilities
+- ✅ **Security Hardening** - Production-grade security controls
 - ✅ **Result Pattern** - Functional error handling
 - ✅ **Repository Pattern** - Abstract data access
 - ✅ **Observability** - Logging, metrics, tracing, health checks
-- ✅ **Testing** - 135+ tests with high coverage
+- ✅ **Cryptographic Integrity** - BLAKE3 + Ed25519 with domain separation
+- ✅ **Streaming Verification** - Scalable ledger verification
+- ✅ **Browser Playground** - Offline-capable web interface
 
 See [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) and [TECHNICAL_IMPROVEMENTS.md](./TECHNICAL_IMPROVEMENTS.md) for details.
 

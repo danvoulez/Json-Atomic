@@ -1,7 +1,7 @@
 {
   "name": "logline-core",
-  "version": "1.0.0",
-  "description": "LogLineOS - Ledger-only constitutional governance platform",
+  "version": "1.1.0",
+  "description": "LogLineOS - Ledger-based constitutional governance platform with production-grade security",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",

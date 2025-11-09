@@ -4,12 +4,15 @@
   "title": "LogLineOS Atomic Unit",
   "description": "Canonical schema for atomic execution units in LogLineOS ledger",
   "type": "object",
-  "required": ["entity_type", "this"],
+  "required": ["entity_type", "this", "schema_version"],
   "properties": {
+    "schema_version": { "type": "string", "const": "1.1.0" },
     "entity_type": { "type": "string", "enum": ["file", "function", "law", "decision", "agent", "contract", "test"] },
     "intent": { "type": "string", "enum": ["run_code", "shell_cmd", "law_test", "contract_eval", "file_write", "file_read", "http_call"] },
+    "trace_id": { "type": "string", "format": "uuid" },
     "this": { "type": "string", "pattern": "^[/\\w\\-\\.]+$" },
     "prev": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "input": {
       "type": "object",
       "properties": {
@@ -70,18 +73,27 @@
       "properties": {
         "owner_id": { "type": "string" },
         "tenant_id": { "type": "string" },
-        "trace_id": { "type": "string", "format": "uuid" },
         "parent_id": { "type": "string", "format": "uuid" },
         "tags": { "type": "array", "items": { "type": "string" } },
         "created_at": { "type": "string", "format": "date-time" },
         "version": { "type": "string" }
       },
-      "required": ["trace_id", "created_at"]
+      "required": ["created_at"]
     },
-    "curr_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-    "signature": { "type": "string", "pattern": "^[a-f0-9]{128}$" }
+    "signature": { "$ref": "#/$defs/Signature" }
   },
-  "definitions": {
+  "$defs": {
+    "Signature": {
+      "type": "object",
+      "properties": {
+        "alg": { "type": "string", "enum": ["Ed25519"] },
+        "public_key": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "sig": { "type": "string", "pattern": "^[0-9a-fA-F]{128}$" },
+        "signed_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["alg", "public_key", "sig"],
+      "additionalProperties": false
+    },
     "policyAction": {
       "oneOf": [
         { "type": "string" },
@@ -97,5 +109,9 @@
       ]
     }
   },
+  "oneOf": [
+    { "not": { "required": ["prev"] } },
+    { "required": ["prev"] }
+  ],
   "additionalProperties": false
 }
