@@ -1,6 +1,6 @@
 # Threat Model
 
-## JsonAtomic/LogLineOS Security Analysis
+## JSON✯Atomic Security Analysis
 
 **Version:** 1.1.0  
 **Last Updated:** 2025-11-09  
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-JsonAtomic/LogLineOS is a ledger-based constitutional governance platform that provides cryptographic integrity for atomic execution units. This document identifies potential threats, attack vectors, and mitigations for the system.
+JSON✯Atomic is a ledger-based constitutional governance platform that provides cryptographic integrity for atomic execution units. This document identifies potential threats, attack vectors, and mitigations for the system.
 
 ## System Overview
 

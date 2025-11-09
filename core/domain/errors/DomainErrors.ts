@@ -1,5 +1,5 @@
 /**
- * Domain errors for LogLineOS
+ * Domain errors for JSON✯Atomic
  */
 
 export abstract class DomainError extends Error {

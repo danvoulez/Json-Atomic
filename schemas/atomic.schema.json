@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://loglineos.dev/schemas/atomic.schema.json",
-  "title": "LogLineOS Atomic Unit",
-  "description": "Canonical schema for atomic execution units in LogLineOS ledger",
+  "$id": "https://jsonatomic.dev/schemas/atomic.schema.json",
+  "title": "JSON✯Atomic Atomic Unit",
+  "description": "Canonical schema for atomic execution units in JSON✯Atomic ledger",
   "type": "object",
   "required": ["entity_type", "this", "schema_version"],
   "properties": {

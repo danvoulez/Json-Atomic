@@ -1,5 +1,5 @@
 /**
- * Core type definitions for LogLineOS
+ * Core type definitions for JSON✯Atomic
  */
 
 export interface Signature {

@@ -1,7 +1,7 @@
 /**
  * Observability module - Logging, Metrics, Tracing, and Health Checks
  * 
- * This module provides comprehensive observability for the LogLineOS platform:
+ * This module provides comprehensive observability for the JSON✯Atomic platform:
  * - Structured logging with Pino
  * - Metrics collection with Prometheus
  * - Distributed tracing

@@ -1,7 +1,7 @@
-# LogLineOS – Transposição de Atomics para Linha SQL/CSV
+# JSON✯Atomic – Transposição de Atomics para Linha SQL/CSV
 
 ## 🚀 O que é "transpor atomic"?
-Transpor significa transformar um objeto JSON `Atomic` do LogLineOS em uma linha (row) de tabela — seja SQL, CSV ou outra estrutura tabular.  
+Transpor significa transformar um objeto JSON `Atomic` do JSON✯Atomic em uma linha (row) de tabela — seja SQL, CSV ou outra estrutura tabular.  
 Cada chave vira coluna. O valor vira o conteúdo da célula.
 Isso é útil para bancos relacionais, BI, relatórios, integração e auditoria.
 
@@ -37,7 +37,7 @@ system,voulezvous,deploy,contract,init,/identity/init,memory,2025-11-07T15:00:00
 
 ## 🔁 Como fazer na prática
 
-### Em Typescript (LogLineOS)
+### Em Typescript (JSON✯Atomic)
 
 ```typescript
 import { atomicToRow, atomsToCSV } from 'tools/util/atomicToRow.ts'

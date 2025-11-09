@@ -1,4 +1,4 @@
-# LogLineOS - Setup Nativo macOS
+# JSON✯Atomic - Setup Nativo macOS
 
 ## 1. Instalação do ambiente
 
@@ -6,7 +6,7 @@ Recurso | Comando | Uso
 ------|--------------------|---------------------------
 Deno | `brew install deno` | CLI, APIs, bots, watcher
 Chave Ed25519 | `openssl genpkey -algorithm ed25519 -out private.pem && openssl pkey -in private.pem -pubout -out public.pem` | Assinar spans (atomic)
-Diretório Ledger | `mkdir -p ~/logline/data` | Ledger append-only
+Diretório Ledger | `mkdir -p ~/jsonatomic/data` | Ledger append-only
 Variáveis de ambiente | `export SIGNING_KEY_HEX=...; export PUBLIC_KEY_HEX=...` | CLI/Bot assinar/verificar
 
 ---
@@ -77,5 +77,5 @@ export PUBLIC_KEY_HEX=$(cat pub.hex)
 ---
 
 Pronto!  
-Com isso, você tem tudo necessário para rodar, assinar, verificar, automatizar e observar spans no LogLineOS localmente no macOS.  
+Com isso, você tem tudo necessário para rodar, assinar, verificar, automatizar e observar spans no JSON✯Atomic localmente no macOS.  
 Dúvidas? Consulte mais exemplos em [docs/README.md](./README.md).

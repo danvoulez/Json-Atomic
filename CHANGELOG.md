@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎯 Major Release - Production Hardening & Security Enhancement
 
-This release brings JsonAtomic/LogLineOS to production-grade quality with comprehensive security hardening, cryptographic improvements, enhanced developer experience, and a premium playground UI.
+This release brings JSON✯Atomic to production-grade quality with comprehensive security hardening, cryptographic improvements, enhanced developer experience, and a premium playground UI.
 
 ### Added
 

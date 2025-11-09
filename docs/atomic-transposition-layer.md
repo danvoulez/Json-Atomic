@@ -1,6 +1,6 @@
 # Atomic Transposition Layer (ATL) — Blueprint Técnico
 
-O ATL é uma camada de ingestão e projeção determinística para os Atomics LogLineOS (JSON span), projetada para alta eficiência analítica, SQL-friendly, multi-tenant, auditável e idempotente.  
+O ATL é uma camada de ingestão e projeção determinística para os Atomics JSON✯Atomic (JSON span), projetada para alta eficiência analítica, SQL-friendly, multi-tenant, auditável e idempotente.  
 Este documento traz a arquitetura enxuta e potente, pronta para produção.
 
 ---
@@ -223,4 +223,4 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY mv_atomic_kpis;
 
 ---
 
-**Adapte para outros bancos ou pipelines conforme seu contexto. Essa camada torna LogLineOS pronto para produção analítica, compliance e interoperabilidade universal.**
+**Adapte para outros bancos ou pipelines conforme seu contexto. Essa camada torna JSON✯Atomic pronto para produção analítica, compliance e interoperabilidade universal.**

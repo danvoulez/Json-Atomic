@@ -1,8 +1,8 @@
 # Operations Guide
 
-## JsonAtomic/LogLineOS v1.1.0
+## JSON✯Atomic v1.1.0
 
-This guide provides operational procedures for running, monitoring, and maintaining a JsonAtomic/LogLineOS deployment.
+This guide provides operational procedures for running, monitoring, and maintaining a JSON✯Atomic deployment.
 
 ## Table of Contents
 
