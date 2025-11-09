@@ -1,0 +1,19 @@
+/**
+ * Self-hosted fonts for JsonAtomic Playground
+ * Using system fonts as fallback to avoid external dependencies
+ */
+
+/* Use system monospace fonts - no external dependencies */
+:root {
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'Courier New', monospace;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+code, pre, .monaco-editor {
+  font-family: var(--font-mono);
+}

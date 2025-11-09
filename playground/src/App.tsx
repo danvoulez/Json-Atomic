@@ -169,7 +169,10 @@ function App() {
     const atomic = createAtomic({
       entity_type: 'document',
       this: {},
-      did: 'did:example:user',
+      did: {
+        actor: 'did:example:user',
+        action: 'create'
+      },
     });
     setAtomicJson(JSON.stringify(atomic, null, 2));
     setOutput('');
