@@ -11,16 +11,33 @@
  * 5. Arrays preserve order
  * 
  * IMPORTANT NOTES:
- * - Unicode normalization: Strings are NOT normalized to NFC/NFD.
- *   Applications should normalize input before canonicalization if needed.
- * - Floating point: Numbers are converted to strings using JavaScript's
- *   default toString(), which may produce platform-specific representations
- *   for edge cases. For cross-platform determinism, consider using integers
- *   or string representations for precise numeric values.
- * - This is a custom implementation, NOT fully RFC 8785 compliant.
+ * - **Unicode normalization**: Strings SHOULD be normalized to NFC (Normalization Form Canonical)
+ *   before being passed to this function for maximum cross-platform compatibility.
+ *   This function does NOT automatically normalize strings. Applications must ensure
+ *   input strings are pre-normalized if deterministic hashing across different Unicode
+ *   representations is required.
  * 
- * For production cross-language compatibility, consider using a standard
- * JCS library or documenting exact serialization requirements.
+ * - **Floating point**: Numbers are converted to strings using JavaScript's
+ *   default toString(), which may produce platform-specific representations
+ *   for edge cases (e.g., -0, very large exponents). For cross-platform determinism,
+ *   consider using integers or string representations for precise numeric values.
+ * 
+ * - **RFC 8785 Compliance**: This is a custom implementation, NOT fully RFC 8785 compliant.
+ *   Main differences:
+ *   - No automatic Unicode normalization (must be done by caller)
+ *   - Numbers use JavaScript toString() instead of IEEE 754 number serialization
+ *   - No special handling for -0 vs +0
+ * 
+ * For production cross-language compatibility, consider:
+ * 1. Using a standard JCS library, OR
+ * 2. Documenting exact serialization requirements, OR
+ * 3. Using integers/strings for all numeric values
+ * 
+ * @example
+ * // Recommended: Normalize strings before canonicalization
+ * const input = { name: "café" }; // May be represented different ways in Unicode
+ * const normalized = { name: input.name.normalize('NFC') };
+ * const canonical = canonicalize(normalized);
  */
 
 export function canonicalize(obj: unknown): string {
