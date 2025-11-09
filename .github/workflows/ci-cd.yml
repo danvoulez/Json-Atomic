@@ -56,9 +56,9 @@ jobs:
             coverage/
             *.log
 
-  # Job 2: Security Scanning
+  # Job 2: Security Scanning & SBOM
   security-scan:
-    name: Security Scanning
+    name: Security Scanning & SBOM
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -69,6 +69,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      # SBOM Generation
+      - name: Generate SBOM (CycloneDX)
+        run: |
+          npx @cyclonedx/cyclonedx-npm --output-file sbom-cyclonedx.json
+        continue-on-error: true
+      
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom-cyclonedx.json
+        continue-on-error: true
+      
+      # Security Scanning with Trivy
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      # CodeQL Analysis
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
