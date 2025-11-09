@@ -69,6 +69,10 @@ LABEL org.opencontainers.image.title="JsonAtomic" \
       org.opencontainers.image.licenses="MIT"
 
 # Start the application
-# Note: To run with read-only filesystem, mount /app/data as writable:
-# docker run --read-only -v data:/app/data --tmpfs /tmp jsonatomic
+# Note: For maximum security in production, run with:
+# docker run --read-only --cap-drop=ALL -v data:/app/data --tmpfs /tmp jsonatomic
+# - --read-only: Read-only root filesystem
+# - --cap-drop=ALL: Drop all Linux capabilities
+# - -v data:/app/data: Writable volume for ledger data
+# - --tmpfs /tmp: Temporary filesystem for runtime
 CMD ["node", "dist/index.js"]

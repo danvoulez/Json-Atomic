@@ -9,9 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎯 Major Release - Production Hardening & Security Enhancement
 
-This release brings JsonAtomic/LogLineOS to production-grade quality with comprehensive security hardening, cryptographic improvements, and enhanced developer experience.
+This release brings JsonAtomic/LogLineOS to production-grade quality with comprehensive security hardening, cryptographic improvements, enhanced developer experience, and a premium playground UI.
 
 ### Added
+
+#### Playground UI/UX
+- **Premium design system** with CSS custom properties for theming
+- **Dark/light mode toggle** with smooth transitions
+- **Responsive 2-column layout** (XL screens: Editor | Sidebar)
+- **Custom Monaco themes** (jsonatomic-dark and jsonatomic-light)
+- **Tailwind CSS integration** with custom brand colors (#6E56CF purple theme)
+- **Accessible components** with focus-visible states and ARIA labels
+- **System font stack** - no external dependencies (fully self-hosted)
+- **Animation effects** - fade-in and smooth transitions
+- **Custom scrollbar styling** matching theme
+- **CSP-compliant** - all resources served from same origin
 
 #### Schema & Types
 - **Schema version 1.1.0** with strict validation rules
@@ -32,8 +44,10 @@ This release brings JsonAtomic/LogLineOS to production-grade quality with compre
 - Deterministic hash computation with canonicalized JSON
 - Structured signature objects replacing simple hex strings
 - Enhanced signature verification with public key extraction
-- Comprehensive documentation of canonicalization strategy
-- Known limitations documented (no Unicode normalization, floating-point edge cases)
+- **Enhanced canonicalization documentation** with Unicode NFC normalization guidelines
+- **Known Answer Tests (KATs)** for reproducible crypto verification
+- Known limitations documented (Unicode normalization must be done by caller, floating-point edge cases)
+- Examples and best practices for cross-platform compatibility
 
 #### Ledger Verifier
 - **Streaming verification** - processes large ledgers line-by-line without memory exhaustion
