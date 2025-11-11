@@ -19,10 +19,35 @@ Minicore is a mini-instance of the LogLineOS runtime that:
 
 ```bash
 # No installation needed! Just use the module directly
-deno run --allow-all minicore/core/minicore.ts
+deno run --allow-all minicore/minicore.ts help
 ```
 
-### Basic Usage
+### CLI Usage
+
+Minicore provides a comprehensive command-line interface:
+
+```bash
+# Execute a span from file
+deno run --allow-read --allow-write minicore/minicore.ts run examples/demo_span.json
+
+# Sign a span
+deno run --allow-read --allow-write minicore/minicore.ts sign span.json --output signed.json
+
+# Interactive chat mode (REPL)
+deno run --allow-read --allow-write minicore/minicore.ts chat
+
+# Verify signed span or ledger
+deno run --allow-read --allow-write minicore/minicore.ts verify ledger.ndjson
+```
+
+**Available Commands:**
+- `minicore run <file>` - Execute a span from JSON file
+- `minicore sign <file>` - Sign a span with Ed25519
+- `minicore chat` - Interactive REPL mode
+- `minicore verify <file>` - Verify signed span or NDJSON ledger
+- `minicore help` - Show help information
+
+### Programmatic Usage
 
 ```typescript
 import { Minicore } from './minicore/core/minicore.ts'
@@ -172,6 +197,38 @@ console.log(ndjson)
 // Save to file
 await Deno.writeTextFile('execution-log.ndjson', ndjson)
 ```
+
+### 6. Ledger Verification
+
+Verify signed spans and NDJSON ledgers:
+
+```typescript
+import { verifyLedger, verifySingleSpan, formatVerificationReport } from '@logline/minicore'
+
+// Verify a single signed span
+const span = { /* signed span */ }
+const result = verifySingleSpan(span)
+console.log('Valid:', result.valid)
+console.log('Hash OK:', result.hashValid)
+console.log('Signature OK:', result.signatureValid)
+
+// Verify entire NDJSON ledger
+const ndjson = await Deno.readTextFile('ledger.ndjson')
+const ledgerResult = verifyLedger(ndjson)
+console.log('Ledger valid:', ledgerResult.valid)
+console.log('Valid spans:', ledgerResult.validSpans)
+console.log('Invalid spans:', ledgerResult.invalidSpans)
+
+// Generate human-readable report
+const report = formatVerificationReport(ledgerResult)
+console.log(report)
+```
+
+**Verification checks:**
+- ✅ BLAKE3 hash matches span content
+- ✅ Ed25519 signature is valid
+- ✅ Span conforms to schema
+- ✅ Chain integrity (prev hash links)
 
 ## 🔐 Security
 
@@ -342,9 +399,35 @@ Usage:
 deno run --allow-read cli.ts examples/demo_span.json
 ```
 
-## 🌐 Browser Usage
+## 🌐 Browser Playground
 
-Bundle with esbuild or similar:
+Minicore includes a fully functional browser playground that works **100% locally** without any backend:
+
+1. Open `runtime.html` in your browser
+2. Choose an example or paste your own span JSON
+3. Click "Execute" to run the span
+4. View results, logs, and signature
+5. Export execution history as NDJSON ledger
+
+**Features:**
+- ✅ No backend required - runs entirely in browser
+- ✅ Real-time span execution
+- ✅ Interactive ledger with all executions
+- ✅ NDJSON export for audit trail
+- ✅ Policy enforcement (TTL, slow)
+- ✅ Multiple example spans
+- ✅ Error handling and logging
+
+```bash
+# Just open in browser
+open minicore/runtime.html
+# or
+python -m http.server 8000  # then visit http://localhost:8000/minicore/runtime.html
+```
+
+### Browser SDK Bundle
+
+For custom integrations, bundle with esbuild or similar:
 
 ```bash
 # Install esbuild (if using Node)

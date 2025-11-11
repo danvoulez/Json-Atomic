@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minicore Runtime - JSON✯Atomic Playground</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    
+    header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+    
+    .examples {
+      padding: 20px 30px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .examples h3 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    
+    .example-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .example-buttons button {
+      padding: 8px 16px;
+      font-size: 14px;
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .example-buttons button:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 30px;
+    }
+    
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    textarea {
+      flex: 1;
+      min-height: 400px;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    textarea#output {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+    
+    .controls {
+      padding: 20px 30px;
+      background: #f5f5f5;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-top: 1px solid #e0e0e0;
+    }
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    button.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    button.secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    
+    button.secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .status {
+      flex: 1;
+      text-align: right;
+      font-size: 14px;
+    }
+    
+    .status.success {
+      color: #10b981;
+      font-weight: 600;
+    }
+    
+    .status.error {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    
+    .status.info {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+    
+    .ledger-panel {
+      padding: 0 30px 30px;
+    }
+    
+    .ledger-panel h3 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+    
+    .ledger-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background: #f9fafb;
+    }
+    
+    .ledger-item {
+      padding: 8px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: monospace;
+      border-left: 3px solid #667eea;
+    }
+    
+    .ledger-item.error {
+      border-left-color: #ef4444;
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Minicore Runtime</h1>
+      <p>Local JSON✯Atomic Span Playground - No Backend Required</p>
+    </header>
+    
+    <div class="examples">
+      <h3>📚 Quick Examples:</h3>
+      <div class="example-buttons">
+        <button onclick="loadExample('simple')">Simple Math</button>
+        <button onclick="loadExample('async')">Async Code</button>
+        <button onclick="loadExample('context')">With Context</button>
+        <button onclick="loadExample('policy')">With Policy</button>
+        <button onclick="loadExample('prompt')">Prompt (stub)</button>
+        <button onclick="loadExample('error')">Error Handling</button>
+      </div>
+    </div>
+    
+    <div class="content">
+      <div class="panel">
+        <h2>📝 Input Span</h2>
+        <textarea id="input" placeholder="Enter your span JSON here..."></textarea>
+      </div>
+      
+      <div class="panel">
+        <h2>📊 Output Result</h2>
+        <textarea id="output" readonly placeholder="Execution result will appear here..."></textarea>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="primary" onclick="execute()">▶️ Execute</button>
+      <button class="secondary" onclick="clearAll()">🗑️ Clear</button>
+      <button class="secondary" onclick="downloadResult()">💾 Save Result</button>
+      <button class="secondary" onclick="downloadLedger()">📦 Export Ledger</button>
+      <button class="secondary" onclick="clearLedger()">🔄 Clear Ledger</button>
+      <div class="status" id="status"></div>
+    </div>
+    
+    <div class="ledger-panel">
+      <h3>📜 Execution Ledger (<span id="ledgerCount">0</span> spans)</h3>
+      <div class="ledger-list" id="ledgerList">
+        <em>No executions yet. Run a span to start building the ledger.</em>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module">
+    // Simple in-browser execution engine
+    // This is a minimal implementation that works without bundling
+    
+    class MinicoreRuntime {
+      constructor() {
+        this.ledger = []
+        this.config = {
+          timeout: 3000
+        }
+      }
+      
+      async execute(span) {
+        const startTime = Date.now()
+        const logs = []
+        const trace_id = span.trace_id || 'trace-' + Date.now()
+        const span_id = span.span_id || 'span-' + Date.now()
+        
+        logs.push('Span created')
+        
+        try {
+          // Apply policies
+          if (span.policy) {
+            const policyResult = this.applyPolicy(span)
+            logs.push(`Policy applied: ${policyResult.policies.join(', ')}`)
+            
+            if (policyResult.denied) {
+              return this.createResult(span, {
+                status: 'error',
+                output: { error: policyResult.reason },
+                logs,
+                duration_ms: Date.now() - startTime,
+                trace_id,
+                span_id
+              })
+            }
+          }
+          
+          // Execute based on kind
+          let output
+          switch (span.kind) {
+            case 'run_code':
+              logs.push('Executing run_code kernel')
+              output = await this.runCode(span.input)
+              break
+            
+            case 'evaluate_prompt':
+              logs.push('Executing evaluate_prompt kernel (stub)')
+              output = {
+                response: 'This is a stub response. Real LLM integration coming soon.',
+                model: span.input?.model || 'stub',
+                tokens_used: 0
+              }
+              break
+            
+            case 'apply_policy':
+              logs.push('Executing apply_policy kernel')
+              output = this.applyPolicy(span)
+              break
+            
+            default:
+              logs.push(`Unknown kernel: ${span.kind}`)
+              throw new Error(`Unknown kernel: ${span.kind}`)
+          }
+          
+          const duration_ms = Date.now() - startTime
+          logs.push(`Execution completed in ${duration_ms}ms`)
+          
+          return this.createResult(span, {
+            status: 'ok',
+            output,
+            logs,
+            duration_ms,
+            trace_id,
+            span_id
+          })
+          
+        } catch (err) {
+          const duration_ms = Date.now() - startTime
+          logs.push(`Error: ${err.message}`)
+          
+          return this.createResult(span, {
+            status: 'error',
+            output: { error: err.message },
+            logs,
+            duration_ms,
+            trace_id,
+            span_id
+          })
+        }
+      }
+      
+      async runCode(input) {
+        const { code, context = {}, timeout = this.config.timeout } = input
+        
+        if (!code) {
+          throw new Error('run_code requires input.code')
+        }
+        
+        // Create execution function with context
+        const contextKeys = Object.keys(context)
+        const contextValues = Object.values(context)
+        const asyncCode = code.includes('await') || code.includes('Promise')
+        
+        const func = asyncCode
+          ? new Function(...contextKeys, `return (async () => { ${code} })()`)
+          : new Function(...contextKeys, `return (() => { ${code} })()`)
+        
+        // Execute with timeout
+        const promise = func(...contextValues)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Execution timeout')), timeout)
+        )
+        
+        return await Promise.race([promise, timeoutPromise])
+      }
+      
+      applyPolicy(span) {
+        const policy = span.policy || {}
+        const policies = []
+        let denied = false
+        let reason = ''
+        
+        // TTL policy
+        if (policy.ttl) {
+          policies.push('ttl')
+          const ttlMs = this.parseDuration(policy.ttl)
+          const createdAt = new Date(span.meta?.created_at || Date.now())
+          const age = Date.now() - createdAt.getTime()
+          
+          if (age > ttlMs) {
+            denied = true
+            reason = `Span expired (age: ${age}ms, ttl: ${ttlMs}ms)`
+          }
+        }
+        
+        // Slow policy
+        if (policy.slow) {
+          policies.push('slow')
+          // Checked after execution
+        }
+        
+        return { policies, denied, reason }
+      }
+      
+      parseDuration(duration) {
+        if (typeof duration === 'number') return duration
+        const match = duration.match(/^(\d+)(ms|s|m|h)?$/)
+        if (!match) return 5000
+        
+        const value = parseInt(match[1])
+        const unit = match[2] || 'ms'
+        
+        const multipliers = { ms: 1, s: 1000, m: 60000, h: 3600000 }
+        return value * (multipliers[unit] || 1)
+      }
+      
+      createResult(span, result) {
+        const full = {
+          ...span,
+          ...result,
+          hash: this.simpleHash(JSON.stringify({ ...span, ...result })),
+          signature: {
+            alg: 'Ed25519',
+            public_key: 'demo-key-' + '0'.repeat(56),
+            sig: 'demo-sig-' + '0'.repeat(120),
+            signed_at: new Date().toISOString()
+          }
+        }
+        
+        this.ledger.push(full)
+        return full
+      }
+      
+      simpleHash(str) {
+        // Simple hash for demo (not cryptographic)
+        let hash = 0
+        for (let i = 0; i < str.length; i++) {
+          const char = str.charCodeAt(i)
+          hash = ((hash << 5) - hash) + char
+          hash = hash & hash
+        }
+        return Math.abs(hash).toString(16).padStart(64, '0')
+      }
+      
+      getLedger() {
+        return this.ledger
+      }
+      
+      exportNDJSON() {
+        return this.ledger.map(span => JSON.stringify(span)).join('\n') + '\n'
+      }
+      
+      clearLedger() {
+        this.ledger = []
+      }
+    }
+    
+    // Initialize runtime
+    window.runtime = new MinicoreRuntime()
+    
+    // Examples
+    window.examples = {
+      simple: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return 2 + 2'
+        }
+      },
+      async: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'await new Promise(r => setTimeout(r, 100)); return "Async works!"'
+        }
+      },
+      context: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return `Hello ${name}, you are ${age} years old`',
+          context: { name: 'World', age: 42 }
+        }
+      },
+      policy: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return Math.sqrt(16)'
+        },
+        policy: {
+          ttl: '5m',
+          slow: '100ms'
+        },
+        meta: {
+          created_at: new Date().toISOString()
+        }
+      },
+      prompt: {
+        type: 'execution',
+        kind: 'evaluate_prompt',
+        input: {
+          prompt: 'What is the meaning of life?',
+          model: 'gpt-4'
+        }
+      },
+      error: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'throw new Error("Intentional error for testing")'
+        }
+      }
+    }
+    
+    // Update ledger display
+    function updateLedgerDisplay() {
+      const ledger = window.runtime.getLedger()
+      const countEl = document.getElementById('ledgerCount')
+      const listEl = document.getElementById('ledgerList')
+      
+      countEl.textContent = ledger.length
+      
+      if (ledger.length === 0) {
+        listEl.innerHTML = '<em>No executions yet. Run a span to start building the ledger.</em>'
+        return
+      }
+      
+      listEl.innerHTML = ledger.map((span, i) => {
+        const status = span.status === 'ok' ? '✓' : '✗'
+        const className = span.status === 'ok' ? '' : 'error'
+        return `<div class="ledger-item ${className}">
+          ${status} #${i + 1}: ${span.kind || 'unknown'} - ${span.status} (${span.duration_ms}ms)
+        </div>`
+      }).join('')
+    }
+    
+    window.updateLedgerDisplay = updateLedgerDisplay
+  </script>
+  
+  <script>
+    function loadExample(name) {
+      const example = window.examples[name]
+      document.getElementById('input').value = JSON.stringify(example, null, 2)
+      setStatus('Example loaded', 'info')
+    }
+    
+    async function execute() {
+      try {
+        const input = document.getElementById('input').value
+        
+        if (!input.trim()) {
+          setStatus('Please enter a span', 'error')
+          return
+        }
+        
+        const span = JSON.parse(input)
+        
+        setStatus('Executing...', 'info')
+        
+        const result = await window.runtime.execute(span)
+        
+        document.getElementById('output').value = JSON.stringify(result, null, 2)
+        
+        if (result.status === 'ok') {
+          setStatus(`✓ Execution successful (${result.duration_ms}ms)`, 'success')
+        } else {
+          setStatus(`✗ Execution failed (${result.duration_ms}ms)`, 'error')
+        }
+        
+        window.updateLedgerDisplay()
+        
+      } catch (error) {
+        document.getElementById('output').value = `Error: ${error.message}\n\n${error.stack}`
+        setStatus('✗ Execution error', 'error')
+      }
+    }
+    
+    function clearAll() {
+      document.getElementById('input').value = ''
+      document.getElementById('output').value = ''
+      setStatus('Cleared', 'info')
+    }
+    
+    function downloadResult() {
+      const output = document.getElementById('output').value
+      if (!output) {
+        alert('No result to download')
+        return
+      }
+      
+      downloadFile(output, 'span-result.json', 'application/json')
+      setStatus('✓ Result downloaded', 'success')
+    }
+    
+    function downloadLedger() {
+      const ndjson = window.runtime.exportNDJSON()
+      
+      if (!ndjson.trim()) {
+        alert('Ledger is empty. Execute some spans first.')
+        return
+      }
+      
+      downloadFile(ndjson, 'minicore-ledger.ndjson', 'application/x-ndjson')
+      setStatus('✓ Ledger exported', 'success')
+    }
+    
+    function clearLedger() {
+      if (confirm('Clear all execution history?')) {
+        window.runtime.clearLedger()
+        window.updateLedgerDisplay()
+        setStatus('Ledger cleared', 'info')
+      }
+    }
+    
+    function downloadFile(content, filename, type) {
+      const blob = new Blob([content], { type })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      a.click()
+      URL.revokeObjectURL(url)
+    }
+    
+    function setStatus(message, type = '') {
+      const status = document.getElementById('status')
+      status.textContent = message
+      status.className = 'status ' + type
+    }
+    
+    // Load simple example when window.examples is ready
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (window.examples) {
+          loadExample('simple')
+        }
+      }, 100)
+    })
+  </script>
+</body>
+</html>

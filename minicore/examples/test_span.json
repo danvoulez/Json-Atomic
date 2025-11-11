@@ -1,0 +1,10 @@
+{
+  "type": "execution",
+  "kind": "run_code",
+  "input": {
+    "code": "return Math.sqrt(16)"
+  },
+  "meta": {
+    "description": "Test span for minicore CLI"
+  }
+}
