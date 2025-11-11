@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minicore Playground</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    
+    header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+    
+    .content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      padding: 30px;
+    }
+    
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    
+    textarea {
+      flex: 1;
+      min-height: 300px;
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .controls {
+      padding: 20px 30px;
+      background: #f5f5f5;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    button.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    button.secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    
+    button.secondary:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .status {
+      flex: 1;
+      text-align: right;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .status.success {
+      color: #10b981;
+      font-weight: 600;
+    }
+    
+    .status.error {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    
+    .examples {
+      padding: 0 30px 30px;
+    }
+    
+    .examples h3 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    
+    .example-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .example-buttons button {
+      padding: 8px 16px;
+      font-size: 14px;
+      background: #e5e7eb;
+      color: #333;
+      border: none;
+      border-radius: 4px;
+    }
+    
+    .example-buttons button:hover {
+      background: #d1d5db;
+    }
+    
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Minicore Playground</h1>
+      <p>Execute JSON✯Atomic spans in your browser</p>
+    </header>
+    
+    <div class="examples">
+      <h3>Quick Examples:</h3>
+      <div class="example-buttons">
+        <button onclick="loadExample('simple')">Simple Math</button>
+        <button onclick="loadExample('async')">Async Code</button>
+        <button onclick="loadExample('context')">With Context</button>
+        <button onclick="loadExample('policy')">With Policy</button>
+        <button onclick="loadExample('prompt')">Prompt (stub)</button>
+      </div>
+    </div>
+    
+    <div class="content">
+      <div class="panel">
+        <h2>📝 Input Span</h2>
+        <textarea id="input" placeholder="Enter your span JSON here..."></textarea>
+      </div>
+      
+      <div class="panel">
+        <h2>📊 Output Result</h2>
+        <textarea id="output" readonly placeholder="Execution result will appear here..."></textarea>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="primary" onclick="execute()">▶️ Execute</button>
+      <button class="secondary" onclick="clearAll()">🗑️ Clear</button>
+      <button class="secondary" onclick="exportNDJSON()">💾 Export NDJSON</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+  
+  <script type="module">
+    // Note: This is a demo that would need the minicore bundle
+    // For now, it's a UI mockup. To make it work:
+    // 1. Bundle minicore with esbuild or similar
+    // 2. Import { Minicore } from './minicore.bundle.js'
+    
+    window.minicore = {
+      execute: async (span) => {
+        // Simulated execution for demo
+        return {
+          ...span,
+          output: eval(span.input?.code || 'null'),
+          status: 'ok',
+          duration_ms: Math.floor(Math.random() * 50),
+          span_id: 'span-' + Date.now(),
+          trace_id: span.trace_id || 'trace-' + Date.now(),
+          logs: ['Span created', 'Span validated', 'Code executed', 'Span signed'],
+          hash: '0'.repeat(64),
+          signature: {
+            alg: 'Ed25519',
+            public_key: 'a'.repeat(64),
+            sig: 'b'.repeat(128),
+            signed_at: new Date().toISOString()
+          }
+        }
+      }
+    }
+    
+    window.examples = {
+      simple: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return 2 + 2'
+        }
+      },
+      async: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'await new Promise(r => setTimeout(r, 10)); return "Async works!"'
+        }
+      },
+      context: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return `Hello ${name}, you are ${age} years old`',
+          context: { name: 'World', age: 42 }
+        }
+      },
+      policy: {
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return Math.sqrt(16)'
+        },
+        policy: {
+          ttl: '5m',
+          slow: '100ms'
+        }
+      },
+      prompt: {
+        type: 'execution',
+        kind: 'evaluate_prompt',
+        input: {
+          prompt: 'What is the meaning of life?',
+          model: 'gpt-4'
+        }
+      }
+    }
+  </script>
+  
+  <script>
+    function loadExample(name) {
+      const example = window.examples[name]
+      document.getElementById('input').value = JSON.stringify(example, null, 2)
+      setStatus('')
+    }
+    
+    async function execute() {
+      try {
+        const input = document.getElementById('input').value
+        const span = JSON.parse(input)
+        
+        setStatus('Executing...', 'info')
+        
+        const result = await window.minicore.execute(span)
+        
+        document.getElementById('output').value = JSON.stringify(result, null, 2)
+        setStatus('✓ Execution successful', 'success')
+      } catch (error) {
+        document.getElementById('output').value = `Error: ${error.message}`
+        setStatus('✗ Execution failed', 'error')
+      }
+    }
+    
+    function clearAll() {
+      document.getElementById('input').value = ''
+      document.getElementById('output').value = ''
+      setStatus('')
+    }
+    
+    function exportNDJSON() {
+      const output = document.getElementById('output').value
+      if (!output) {
+        alert('No output to export')
+        return
+      }
+      
+      const blob = new Blob([output + '\n'], { type: 'application/x-ndjson' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'minicore-export.ndjson'
+      a.click()
+      URL.revokeObjectURL(url)
+      
+      setStatus('✓ Exported to NDJSON', 'success')
+    }
+    
+    function setStatus(message, type = '') {
+      const status = document.getElementById('status')
+      status.textContent = message
+      status.className = 'status ' + type
+    }
+    
+    // Load simple example on start
+    loadExample('simple')
+  </script>
+</body>
+</html>
