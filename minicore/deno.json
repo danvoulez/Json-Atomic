@@ -10,11 +10,14 @@
     "run": "deno run --allow-read --allow-write minicore.ts run",
     "sign": "deno run --allow-read --allow-write minicore.ts sign",
     "chat": "deno run --allow-read --allow-write minicore.ts chat",
-    "verify": "deno run --allow-read --allow-write minicore.ts verify"
+    "verify": "deno run --allow-read --allow-write minicore.ts verify",
+    "build:browser": "deno run -A scripts/build_browser.ts",
+    "serve:demo": "deno run -A --allow-net --allow-read jsr:@std/http@1.0/file-server dist/browser --port=8080"
   },
   "imports": {
     "@noble/hashes": "npm:@noble/hashes@1.4.0",
-    "@noble/curves": "npm:@noble/curves@1.4.0"
+    "@noble/curves": "npm:@noble/curves@1.4.0",
+    "esbuild": "npm:esbuild@0.24.0"
   },
   "compilerOptions": {
     "strict": true,

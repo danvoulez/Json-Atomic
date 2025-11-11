@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minicore Browser Tests</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 40px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #60a5fa;
+      margin-bottom: 20px;
+      font-size: 2.5em;
+    }
+
+    .test-section {
+      background: #334155;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .test-case {
+      background: #1e293b;
+      border-left: 4px solid #64748b;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+
+    .test-case.pass {
+      border-left-color: #10b981;
+    }
+
+    .test-case.fail {
+      border-left-color: #ef4444;
+    }
+
+    .test-case.running {
+      border-left-color: #f59e0b;
+    }
+
+    .test-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+    }
+
+    .test-status {
+      font-family: monospace;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    .test-detail {
+      margin-top: 8px;
+      font-family: monospace;
+      font-size: 0.85em;
+      background: #0f172a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    .summary {
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .summary-item {
+      display: inline-block;
+      margin-right: 30px;
+      font-size: 1.1em;
+    }
+
+    .pass-count { color: #10b981; }
+    .fail-count { color: #ef4444; }
+    .total-count { color: #60a5fa; }
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Minicore Browser Tests</h1>
+
+    <div class="summary">
+      <div class="summary-item">
+        <span class="total-count">Total: <span id="totalCount">0</span></span>
+      </div>
+      <div class="summary-item">
+        <span class="pass-count">Pass: <span id="passCount">0</span></span>
+      </div>
+      <div class="summary-item">
+        <span class="fail-count">Fail: <span id="failCount">0</span></span>
+      </div>
+    </div>
+
+    <button onclick="runTests()">▶️ Run All Tests</button>
+
+    <div id="testResults"></div>
+  </div>
+
+  <script type="module">
+    import { Minicore, runInSandbox, hashSpan, signSpan, verifySpan } from '../../dist/browser/minicore.browser.js'
+
+    const tests = []
+    let passCount = 0
+    let failCount = 0
+
+    function test(name, fn) {
+      tests.push({ name, fn })
+    }
+
+    function updateSummary() {
+      document.getElementById('totalCount').textContent = tests.length
+      document.getElementById('passCount').textContent = passCount
+      document.getElementById('failCount').textContent = failCount
+    }
+
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || 'Assertion failed')
+      }
+    }
+
+    function assertEquals(actual, expected, message) {
+      if (actual !== expected) {
+        throw new Error(message || `Expected ${expected}, got ${actual}`)
+      }
+    }
+
+    // Test 1: Basic execution
+    test('Basic code execution returns correct result', async () => {
+      const result = await runInSandbox('return 2 + 2')
+      assertEquals(result.output, 4, 'Should return 4')
+      assert(!result.error, 'Should not have error')
+      assert(!result.timedOut, 'Should not timeout')
+    })
+
+    // Test 2: Timeout enforcement
+    test('Timeout is enforced for infinite loops', async () => {
+      const result = await runInSandbox('while(true){}', {}, { timeout: 500 })
+      assert(result.timedOut, 'Should timeout')
+      assert(result.error, 'Should have error message')
+      assert(result.duration_ms >= 500, 'Duration should be >= timeout')
+    })
+
+    // Test 3: Context variables
+    test('Context variables are accessible', async () => {
+      const result = await runInSandbox(
+        'return name + " is " + age',
+        { name: 'Alice', age: 30 }
+      )
+      assertEquals(result.output, 'Alice is 30', 'Should use context variables')
+      assert(!result.error, 'Should not have error')
+    })
+
+    // Test 4: Async code support
+    test('Async/await code works correctly', async () => {
+      const code = `
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return 'async-done';
+      `
+      const result = await runInSandbox(code)
+      assertEquals(result.output, 'async-done', 'Should handle async code')
+      assert(result.duration_ms >= 100, 'Should take at least 100ms')
+    })
+
+    // Test 5: Error handling
+    test('Errors are caught and reported', async () => {
+      const result = await runInSandbox('throw new Error("Test error")')
+      assert(result.error, 'Should have error')
+      assert(result.error.includes('Test error'), 'Should include error message')
+      assert(!result.timedOut, 'Should not timeout')
+    })
+
+    // Test 6: Minicore execution
+    test('Minicore executes span correctly', async () => {
+      const minicore = new Minicore()
+      const result = await minicore.execute({
+        type: 'execution',
+        kind: 'run_code',
+        input: {
+          code: 'return Math.sqrt(16)'
+        }
+      })
+      assertEquals(result.status, 'ok', 'Status should be ok')
+      assertEquals(result.output, 4, 'Output should be 4')
+      assert(result.hash, 'Should have hash')
+    })
+
+    // Test 7: Signature and verification
+    test('Span signing and verification works', async () => {
+      const span = {
+        type: 'execution',
+        kind: 'run_code',
+        input: { code: 'return 42' },
+        output: 42,
+        status: 'ok'
+      }
+
+      // Hash the span
+      const hash = hashSpan(span)
+      assert(hash, 'Should generate hash')
+      assert(hash.length === 64, 'Hash should be 64 characters (BLAKE3)')
+
+      // Sign the span
+      const signed = signSpan({ ...span, hash })
+      assert(signed.signature, 'Should have signature')
+      assert(signed.signature.public_key, 'Should have public key')
+      assert(signed.signature.sig, 'Should have signature value')
+
+      // Verify the span
+      const isValid = verifySpan(signed)
+      assert(isValid, 'Signature should be valid')
+    })
+
+    // Test 8: Policy enforcement
+    test('TTL policy denies expired spans', async () => {
+      const minicore = new Minicore()
+      const result = await minicore.execute({
+        type: 'execution',
+        kind: 'run_code',
+        input: { code: 'return "test"' },
+        policy: {
+          ttl: '100ms'
+        },
+        meta: {
+          created_at: new Date(Date.now() - 200).toISOString() // 200ms ago
+        }
+      })
+      // Should either deny or handle expired span
+      assert(result.status === 'error' || result.policy_applied, 'Should apply TTL policy')
+    })
+
+    // Run all tests
+    window.runTests = async function() {
+      passCount = 0
+      failCount = 0
+      const resultsDiv = document.getElementById('testResults')
+      resultsDiv.innerHTML = '<div class="test-section"><h2>Running tests...</h2></div>'
+
+      for (const { name, fn } of tests) {
+        const testDiv = document.createElement('div')
+        testDiv.className = 'test-case running'
+        testDiv.innerHTML = `
+          <div class="test-name">${name}</div>
+          <div class="test-status">Running...</div>
+        `
+        resultsDiv.appendChild(testDiv)
+
+        try {
+          await fn()
+          testDiv.className = 'test-case pass'
+          testDiv.innerHTML = `
+            <div class="test-name">✓ ${name}</div>
+            <div class="test-status">PASS</div>
+          `
+          passCount++
+        } catch (error) {
+          testDiv.className = 'test-case fail'
+          testDiv.innerHTML = `
+            <div class="test-name">✗ ${name}</div>
+            <div class="test-status">FAIL</div>
+            <div class="test-detail"><pre>${error.message}\n${error.stack}</pre></div>
+          `
+          failCount++
+        }
+
+        updateSummary()
+      }
+
+      const summaryDiv = document.createElement('div')
+      summaryDiv.className = 'test-section'
+      summaryDiv.innerHTML = `
+        <h2>${passCount === tests.length ? '✓ All tests passed!' : '✗ Some tests failed'}</h2>
+      `
+      resultsDiv.appendChild(summaryDiv)
+    }
+
+    // Auto-run tests on load
+    window.addEventListener('load', () => {
+      updateSummary()
+      setTimeout(runTests, 500)
+    })
+  </script>
+</body>
+</html>

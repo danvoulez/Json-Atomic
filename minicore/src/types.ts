@@ -164,6 +164,26 @@ export interface SandboxResult {
 }
 
 /**
+ * Sandbox adapter interface for runtime-specific implementations
+ * Allows switching between Web Worker (browser), Deno isolates, or Node.js VMs
+ */
+export interface SandboxAdapter {
+  /**
+   * Execute code in a sandboxed environment
+   *
+   * @param code - JavaScript code to execute
+   * @param context - Variables available to the code
+   * @param config - Sandbox configuration
+   * @returns Execution result with output, error, and timing
+   */
+  run(
+    code: string,
+    context?: Record<string, unknown>,
+    config?: SandboxConfig
+  ): Promise<SandboxResult>
+}
+
+/**
  * Input for run_code kernel
  */
 export interface RunCodeInput {
