@@ -6,7 +6,11 @@
     "test": "deno test --allow-all tests/",
     "example": "deno run --allow-all examples/basic.ts",
     "demo": "deno run --allow-read cli.ts examples/demo_span.json",
-    "cli": "deno run --allow-read cli.ts"
+    "cli": "deno run --allow-read --allow-write minicore.ts",
+    "run": "deno run --allow-read --allow-write minicore.ts run",
+    "sign": "deno run --allow-read --allow-write minicore.ts sign",
+    "chat": "deno run --allow-read --allow-write minicore.ts chat",
+    "verify": "deno run --allow-read --allow-write minicore.ts verify"
   },
   "imports": {
     "@noble/hashes": "npm:@noble/hashes@1.4.0",

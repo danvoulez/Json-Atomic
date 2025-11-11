@@ -643,8 +643,14 @@
       status.className = 'status ' + type
     }
     
-    // Load simple example on start
-    loadExample('simple')
+    // Load simple example when window.examples is ready
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (window.examples) {
+          loadExample('simple')
+        }
+      }, 100)
+    })
   </script>
 </body>
 </html>
