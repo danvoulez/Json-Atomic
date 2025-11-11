@@ -1,0 +1,66 @@
+{
+  "name": "@logline/minicore",
+  "version": "1.0.0",
+  "description": "Portable runtime for JSON✯Atomic spans with secure execution, policy enforcement, and cryptographic signing",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./sdk": "./src/sdk.ts",
+    "./core": "./src/core.ts",
+    "./types": "./src/types.ts"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "echo 'Note: This SDK is primarily designed for Deno. For Node.js/npm, use a bundler like esbuild or webpack to bundle from src/'",
+    "test": "echo 'Tests require Deno runtime - see README.md'",
+    "prepublishOnly": "echo 'Note: Publishing source for Deno compatibility. Users should bundle for Node.js/browser.'"
+  },
+  "keywords": [
+    "json-atomic",
+    "span",
+    "execution",
+    "runtime",
+    "sandbox",
+    "edge",
+    "deno",
+    "browser",
+    "cryptography",
+    "ed25519",
+    "blake3",
+    "policy",
+    "audit",
+    "verifiable"
+  ],
+  "author": "JSON✯Atomic Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danvoulez/Json-Atomic.git",
+    "directory": "minicore"
+  },
+  "bugs": {
+    "url": "https://github.com/danvoulez/Json-Atomic/issues"
+  },
+  "homepage": "https://github.com/danvoulez/Json-Atomic/tree/main/minicore#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.4.0",
+    "@noble/hashes": "^1.4.0"
+  }
+}
