@@ -64,6 +64,13 @@ export {
   getRuntime
 } from './env.ts'
 
+export {
+  verifySingleSpan,
+  verifyLedger,
+  verifyChain,
+  formatVerificationReport
+} from './verifyLedger.ts'
+
 // Kernels
 export { runCode } from './kernels/run_code.ts'
 export { evaluatePrompt } from './kernels/evaluate_prompt.ts'

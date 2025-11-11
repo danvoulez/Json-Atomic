@@ -17,10 +17,18 @@
     "README.md",
     "LICENSE"
   ],
+  "bin": {
+    "minicore": "./minicore.ts"
+  },
   "scripts": {
     "build": "echo 'Note: This SDK is primarily designed for Deno. For Node.js/npm, use a bundler like esbuild or webpack to bundle from src/'",
     "test": "echo 'Tests require Deno runtime - see README.md'",
-    "prepublishOnly": "echo 'Note: Publishing source for Deno compatibility. Users should bundle for Node.js/browser.'"
+    "prepublishOnly": "echo 'Note: Publishing source for Deno compatibility. Users should bundle for Node.js/browser.'",
+    "cli": "deno run --allow-read --allow-write minicore.ts",
+    "cli:run": "deno run --allow-read --allow-write minicore.ts run",
+    "cli:sign": "deno run --allow-read --allow-write minicore.ts sign",
+    "cli:chat": "deno run --allow-read --allow-write minicore.ts chat",
+    "cli:verify": "deno run --allow-read --allow-write minicore.ts verify"
   },
   "keywords": [
     "json-atomic",
