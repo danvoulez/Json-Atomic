@@ -386,7 +386,8 @@ minicore/
 ├── examples/
 │   ├── demo_span.json      # Example span
 │   ├── prompt_span.json    # Prompt example
-│   └── code_execution.json # Code example
+│   ├── code_execution.json # Code example
+│   └── integration.ts      # Complete integration examples
 ├── tests/
 │   └── core.test.ts        # Unit tests
 ├── README.md               # This file
@@ -399,6 +400,23 @@ Run tests with Deno:
 
 ```bash
 deno test --allow-all minicore/tests/
+```
+
+## 📚 Integration Examples
+
+See `examples/integration.ts` for comprehensive real-world usage examples including:
+- Calculator service
+- Data processing pipeline
+- Policy-based access control
+- Async operations
+- Audit trail export
+- Error handling
+- Dry run mode
+
+Run the integration examples:
+
+```bash
+deno run --allow-all minicore/examples/integration.ts
 ```
 
 ## 🔮 Future Extensions
