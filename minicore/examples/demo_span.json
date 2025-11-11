@@ -1,0 +1,16 @@
+{
+  "type": "execution",
+  "kind": "run_code",
+  "input": {
+    "code": "return 2 + 2"
+  },
+  "policy": {
+    "ttl": "5m",
+    "slow": "100ms"
+  },
+  "meta": {
+    "tenant_id": "abc",
+    "owner_id": "dan",
+    "trace_id": "xyz-123"
+  }
+}

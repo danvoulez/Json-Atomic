@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://jsonatomic.dev/schemas/atomic.schema.json",
+  "title": "JSON✯Atomic Atomic Unit",
+  "description": "Canonical schema for atomic execution units in JSON✯Atomic ledger",
+  "type": "object",
+  "required": ["entity_type", "this", "schema_version"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.1.0" },
+    "entity_type": { "type": "string", "enum": ["file", "function", "law", "decision", "agent", "contract", "test"] },
+    "intent": { "type": "string", "enum": ["run_code", "shell_cmd", "law_test", "contract_eval", "file_write", "file_read", "http_call"] },
+    "trace_id": { "type": "string", "format": "uuid" },
+    "this": { "type": "string", "pattern": "^[/\\w\\-\\.]+$" },
+    "prev": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "input": {
+      "type": "object",
+      "properties": {
+        "content": { "type": "string" },
+        "bytes_b64": { "type": "string" },
+        "args": { "type": "array" },
+        "env": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "payload": { "type": "object", "additionalProperties": true },
+    "output": {
+      "type": "object",
+      "properties": {
+        "stdout": { "type": "string" },
+        "stderr": { "type": "string" },
+        "result": {},
+        "error": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "when": {
+      "type": "object",
+      "properties": {
+        "started_at": { "type": "string", "format": "date-time" },
+        "completed_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["started_at"]
+    },
+    "did": {
+      "type": "object",
+      "properties": {
+        "action": { "type": "string" },
+        "actor": { "type": "string" },
+        "reason": { "type": "string" }
+      },
+      "required": ["action", "actor"]
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "state": { "type": "string", "enum": ["pending", "running", "completed", "failed", "cancelled"] },
+        "result": { "type": "string", "enum": ["ok", "doubt", "not", "error"] },
+        "message": { "type": "string" }
+      },
+      "required": ["state"]
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "if_ok": { "$ref": "#/definitions/policyAction" },
+        "if_doubt": { "$ref": "#/definitions/policyAction" },
+        "if_not": { "$ref": "#/definitions/policyAction" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "owner_id": { "type": "string" },
+        "tenant_id": { "type": "string" },
+        "parent_id": { "type": "string", "format": "uuid" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "created_at": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" }
+      },
+      "required": ["created_at"]
+    },
+    "signature": { "$ref": "#/$defs/Signature" }
+  },
+  "$defs": {
+    "Signature": {
+      "type": "object",
+      "properties": {
+        "alg": { "type": "string", "enum": ["Ed25519"] },
+        "public_key": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "sig": { "type": "string", "pattern": "^[0-9a-fA-F]{128}$" },
+        "signed_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["alg", "public_key", "sig"],
+      "additionalProperties": false
+    },
+    "policyAction": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "properties": {
+            "action": { "type": "string" },
+            "target": { "type": "string" },
+            "params": { "type": "object" }
+          },
+          "required": ["action"]
+        }
+      ]
+    }
+  },
+  "oneOf": [
+    { "not": { "required": ["prev"] } },
+    { "required": ["prev"] }
+  ],
+  "additionalProperties": false
+}

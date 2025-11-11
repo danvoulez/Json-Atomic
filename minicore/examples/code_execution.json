@@ -1,0 +1,11 @@
+{
+  "type": "execution",
+  "kind": "run_code",
+  "input": {
+    "code": "const sum = (a, b) => a + b; return sum(10, 20)",
+    "timeout": 1000
+  },
+  "policy": {
+    "slow": "50ms"
+  }
+}

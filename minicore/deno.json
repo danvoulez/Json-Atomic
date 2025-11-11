@@ -1,0 +1,33 @@
+{
+  "name": "@json-atomic/minicore",
+  "version": "1.0.0",
+  "exports": "./core/minicore.ts",
+  "tasks": {
+    "test": "deno test --allow-all tests/",
+    "demo": "deno run --allow-read examples/cli.ts examples/demo_span.json",
+    "cli": "deno run --allow-read cli.ts"
+  },
+  "imports": {
+    "@noble/hashes": "npm:@noble/hashes@1.4.0",
+    "@noble/curves": "npm:@noble/curves@1.4.0"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "lint": {
+    "include": ["core/", "tests/"],
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "include": ["core/", "tests/"],
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "semiColons": false,
+    "singleQuote": true
+  }
+}
