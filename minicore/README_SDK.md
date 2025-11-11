@@ -21,27 +21,44 @@ Minicore is the **local instance of a universal runtime** for JSON✯Atomic span
 
 ## 📦 Installation
 
-### Deno (Recommended)
+### Deno (Primary/Recommended)
 
 ```typescript
 import { Minicore } from 'https://deno.land/x/minicore/src/sdk.ts'
+// Or from GitHub
+import { Minicore } from 'https://raw.githubusercontent.com/danvoulez/Json-Atomic/main/minicore/src/sdk.ts'
 ```
 
-### npm
+### npm/Node.js
+
+For Node.js, you'll need to bundle the source with a tool like esbuild:
+
+```bash
+# Install esbuild
+npm install -g esbuild
+
+# Bundle minicore
+esbuild minicore/src/sdk.ts --bundle --format=esm --outfile=minicore-bundle.js
+
+# Then use it
+import { Minicore } from './minicore-bundle.js'
+```
+
+Or install directly and use with a bundler in your build process:
 
 ```bash
 npm install @logline/minicore
 ```
 
-```typescript
-import { Minicore } from '@logline/minicore'
-```
+Then configure your bundler (webpack/vite/esbuild) to handle TypeScript imports.
 
-### From Source
+### Browser
+
+Bundle with esbuild:
 
 ```bash
-git clone https://github.com/danvoulez/Json-Atomic.git
-cd Json-Atomic/minicore
+npx esbuild node_modules/@logline/minicore/src/sdk.ts \
+  --bundle --format=esm --outfile=minicore.js
 ```
 
 ## 🚀 Quick Start

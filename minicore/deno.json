@@ -1,7 +1,7 @@
 {
   "name": "@logline/minicore",
   "version": "1.0.0",
-  "exports": "./src/sdk.ts",
+  "exports": "./src/index.ts",
   "tasks": {
     "test": "deno test --allow-all tests/",
     "example": "deno run --allow-all examples/basic.ts",

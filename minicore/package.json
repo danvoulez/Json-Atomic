@@ -3,21 +3,13 @@
   "version": "1.0.0",
   "description": "Portable runtime for JSON✯Atomic spans with secure execution, policy enforcement, and cryptographic signing",
   "type": "module",
-  "main": "./dist/sdk.js",
-  "types": "./dist/sdk.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "import": "./dist/sdk.js",
-      "types": "./dist/sdk.d.ts"
-    },
-    "./core": {
-      "import": "./dist/core.js",
-      "types": "./dist/core.d.ts"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "types": "./dist/types.d.ts"
-    }
+    ".": "./src/index.ts",
+    "./sdk": "./src/sdk.ts",
+    "./core": "./src/core.ts",
+    "./types": "./src/types.ts"
   },
   "files": [
     "dist",
@@ -26,9 +18,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc && echo 'Build complete'",
+    "build": "echo 'Note: This SDK is primarily designed for Deno. For Node.js/npm, use a bundler like esbuild or webpack to bundle from src/'",
     "test": "echo 'Tests require Deno runtime - see README.md'",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "echo 'Note: Publishing source for Deno compatibility. Users should bundle for Node.js/browser.'"
   },
   "keywords": [
     "json-atomic",
@@ -60,12 +52,15 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.3.0"
+    "@types/node": "^24.10.0",
+    "typescript": "^5.9.3"
   },
-  "peerDependencies": {},
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@noble/curves": "^1.4.0",
+    "@noble/hashes": "^1.4.0"
   }
 }

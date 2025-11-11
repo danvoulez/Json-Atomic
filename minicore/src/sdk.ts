@@ -110,6 +110,7 @@ export async function runSpan(
   spanInput: Partial<import('./types.ts').Span>,
   config?: import('./types.ts').MinicoreConfig
 ) {
+  const { Minicore } = await import('./core.ts')
   const minicore = new Minicore(config)
   return await minicore.execute(spanInput)
 }
@@ -129,7 +130,8 @@ export async function runSpan(
  * console.log(playground.history())
  * ```
  */
-export function createPlayground(config?: import('./types.ts').MinicoreConfig) {
+export async function createPlayground(config?: import('./types.ts').MinicoreConfig) {
+  const { Minicore } = await import('./core.ts')
   const minicore = new Minicore(config)
   
   return {

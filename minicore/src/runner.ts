@@ -115,7 +115,7 @@ export async function executeSpan(
   // Step 5: Sign if not in dry run mode and keys are available
   if (!config.dry_run && config.privateKey) {
     logs.push('Signing span')
-    const signed = signSpan(result, config.privateKey)
+    const signed = signSpan(result as Record<string, unknown>, config.privateKey)
     return signed as ExecutionResult
   }
   
@@ -137,7 +137,7 @@ async function executeRunCode(
   config: MinicoreConfig,
   logs: string[]
 ): Promise<unknown> {
-  const input = span.input as RunCodeInput
+  const input = span.input as unknown as RunCodeInput
   if (!input?.code) {
     throw new Error('run_code requires input.code')
   }
@@ -173,7 +173,7 @@ async function executeEvaluatePrompt(
   config: MinicoreConfig,
   logs: string[]
 ): Promise<unknown> {
-  const input = span.input as EvaluatePromptInput
+  const input = span.input as unknown as EvaluatePromptInput
   if (!input?.prompt) {
     throw new Error('evaluate_prompt requires input.prompt')
   }
@@ -222,7 +222,7 @@ function createErrorResult(
   
   // Sign errors if configured
   if (!config.dry_run && config.privateKey) {
-    return signSpan(result, config.privateKey) as ExecutionResult
+    return signSpan(result as Record<string, unknown>, config.privateKey) as ExecutionResult
   }
   
   return {

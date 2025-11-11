@@ -3,8 +3,8 @@
  * Compatible with JSON✯Atomic DV25Seal specification
  */
 
-import { blake3 } from 'npm:@noble/hashes@1.4.0/blake3'
-import { ed25519 } from 'npm:@noble/curves@1.4.0/ed25519'
+import { blake3 } from '@noble/hashes/blake3'
+import { ed25519 } from '@noble/curves/ed25519'
 import type { Signature, SignedSpan, KeyPair } from './types.ts'
 
 /** Domain separation context for BLAKE3 hashing */
@@ -123,7 +123,7 @@ export function verifySpan(
  * @returns True if hash matches the span content
  */
 export function verifyHash(signedSpan: SignedSpan): boolean {
-  const computedHash = hashSpan(signedSpan)
+  const computedHash = hashSpan(signedSpan as unknown as Record<string, unknown>)
   return computedHash === signedSpan.hash
 }
 

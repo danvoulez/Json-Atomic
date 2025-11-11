@@ -31,6 +31,8 @@ export interface Span {
   policy_applied?: string[]
   /** Metadata */
   meta?: Record<string, unknown>
+  /** Allow additional properties */
+  [key: string]: unknown
 }
 
 /**
