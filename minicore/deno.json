@@ -12,8 +12,13 @@
     "chat": "deno run --allow-read --allow-write minicore.ts chat",
     "verify": "deno run --allow-read --allow-write minicore.ts verify",
     "build:browser": "deno run -A scripts/build_browser.ts",
-    "serve:demo": "deno run -A --allow-net --allow-read jsr:@std/http@1.0/file-server . --port=8080",
-    "build:pwa": "deno task build:browser && echo 'PWA assets ready for deployment'"
+    "serve:demo": "deno run -A --allow-net --allow-read jsr:@std/http@1.0/file-server . --port=5173",
+    "build:pwa": "deno task build:browser && echo 'PWA assets ready for deployment'",
+    "e2e": "npx playwright test",
+    "e2e:headed": "npx playwright test --headed",
+    "e2e:ui": "npx playwright test --ui",
+    "lhci": "npx @lhci/cli@0.13.x autorun",
+    "ci": "deno task build:browser && deno task e2e && deno task lhci"
   },
   "imports": {
     "@noble/hashes": "npm:@noble/hashes@1.4.0",

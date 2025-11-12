@@ -641,6 +641,7 @@
   <div class="container">
     <header>
       <div class="offline-indicator" id="offlineIndicator">🌐 Online</div>
+      <button id="installButton" data-testid="btn-install" class="btn-secondary btn-small" style="position: absolute; top: 10px; left: 20px; display: none;">📱 Install App</button>
       <h1>🚀 Minicore Runtime</h1>
       <p>Offline-First JSON✯Atomic Playground with Deterministic Replay</p>
     </header>
@@ -657,21 +658,24 @@
       <div class="run-content">
         <div class="panel">
           <h2>📝 Input Span</h2>
-          <textarea id="input" placeholder="Enter your span JSON here..."></textarea>
+          <textarea id="input" data-testid="input-span" placeholder="Enter your span JSON here..."></textarea>
         </div>
 
         <div class="panel">
           <h2>📊 Output Result</h2>
-          <textarea id="output" readonly placeholder="Execution result will appear here..."></textarea>
+          <textarea id="output" data-testid="output-json" readonly placeholder="Execution result will appear here..."></textarea>
         </div>
       </div>
 
       <div class="controls">
-        <button class="btn-primary" onclick="execute()">▶️ Execute</button>
-        <button class="btn-secondary" onclick="executeReplay()">🔄 Execute with Replay</button>
-        <button class="btn-secondary" onclick="loadExample()">📚 Load Example</button>
-        <button class="btn-secondary" onclick="clearRunTab()">🗑️ Clear</button>
-        <div class="status" id="status"></div>
+        <button class="btn-primary" data-testid="btn-run" onclick="execute()">▶️ Execute</button>
+        <button class="btn-secondary" data-testid="btn-timeout" onclick="executeReplay()">🔄 Execute with Replay</button>
+        <button class="btn-secondary" data-testid="btn-load-example" onclick="loadExample()">📚 Load Example</button>
+        <button class="btn-secondary" data-testid="btn-clear" onclick="clearRunTab()">🗑️ Clear</button>
+        <button class="btn-secondary" data-testid="btn-sign" onclick="executeSign()" style="display:none;">🔏 Sign</button>
+        <button class="btn-secondary" data-testid="btn-verify" onclick="executeVerify()" style="display:none;">✓ Verify</button>
+        <button class="btn-secondary" data-testid="btn-export-ndjson" onclick="exportNDJSON()" style="display:none;">💾 Export NDJSON</button>
+        <div class="status" id="status" data-testid="status-message"></div>
       </div>
     </div>
 
@@ -685,6 +689,9 @@
       <div id="ledger-viewer-container"></div>
     </div>
   </div>
+
+  <!-- Toast for errors (hidden by default) -->
+  <div id="toast-error" data-testid="toast-error" class="toast toast-error" style="display: none;"></div>
 
   <script type="module">
     // Register Service Worker for offline support
@@ -880,6 +887,150 @@
         toast.classList.remove('show')
         setTimeout(() => toast.remove(), 300)
       }, duration)
+
+      // Also update the toast-error element for e2e tests
+      if (type === 'error') {
+        const toastError = document.getElementById('toast-error')
+        toastError.textContent = message
+        toastError.style.display = 'block'
+        setTimeout(() => {
+          toastError.style.display = 'none'
+        }, duration)
+      }
+    }
+
+    // PWA Install Button handling
+    let deferredPrompt = null
+    const installButton = document.getElementById('installButton')
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault()
+      // Stash the event so it can be triggered later
+      deferredPrompt = e
+      // Show the install button
+      installButton.style.display = 'block'
+      console.log('PWA install prompt available')
+    })
+
+    installButton.addEventListener('click', async () => {
+      if (!deferredPrompt) {
+        console.log('No install prompt available')
+        return
+      }
+
+      // Show the install prompt
+      deferredPrompt.prompt()
+
+      // Wait for the user to respond to the prompt
+      const { outcome } = await deferredPrompt.userChoice
+      console.log(`User response to install prompt: ${outcome}`)
+
+      if (outcome === 'accepted') {
+        window.toast('App installed successfully!', 'success')
+      }
+
+      // Clear the deferredPrompt
+      deferredPrompt = null
+      installButton.style.display = 'none'
+    })
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed')
+      window.toast('Minicore installed! You can now use it offline.', 'success')
+      deferredPrompt = null
+      installButton.style.display = 'none'
+    })
+
+    // Sign execution result
+    window.executeSign = async () => {
+      try {
+        const output = document.getElementById('output').value
+        if (!output.trim()) {
+          setStatus('No result to sign', 'error')
+          return
+        }
+
+        const result = JSON.parse(output)
+        setStatus('Signing...', 'info')
+
+        // Use Minicore signer (would need to be exposed in SDK)
+        const signed = await minicore.sign(result)
+
+        document.getElementById('output').value = JSON.stringify(signed, null, 2)
+        setStatus('✓ Signed successfully', 'success')
+
+        // Show verify button
+        document.querySelector('[data-testid="btn-verify"]').style.display = 'inline-block'
+      } catch (error) {
+        setStatus('✗ Sign failed: ' + error.message, 'error')
+        window.toast('Sign failed: ' + error.message, 'error')
+      }
+    }
+
+    // Verify signed result
+    window.executeVerify = async () => {
+      try {
+        const output = document.getElementById('output').value
+        if (!output.trim()) {
+          setStatus('No result to verify', 'error')
+          return
+        }
+
+        const signed = JSON.parse(output)
+        setStatus('Verifying...', 'info')
+
+        const isValid = await minicore.verify(signed)
+
+        if (isValid) {
+          setStatus('✓ Signature valid', 'success')
+          window.toast('Signature is valid!', 'success')
+        } else {
+          setStatus('✗ Signature invalid', 'error')
+          window.toast('Signature is invalid!', 'error')
+        }
+      } catch (error) {
+        setStatus('✗ Verify failed: ' + error.message, 'error')
+        window.toast('Verify failed: ' + error.message, 'error')
+      }
+    }
+
+    // Export ledger as NDJSON
+    window.exportNDJSON = () => {
+      try {
+        const spans = ledgerViewer.getAllSpans()
+        if (!spans || spans.length === 0) {
+          setStatus('No spans to export', 'error')
+          return
+        }
+
+        // Convert to NDJSON format
+        const ndjson = spans.map(s => JSON.stringify(s)).join('\n')
+
+        // Create download
+        const blob = new Blob([ndjson], { type: 'application/x-ndjson' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `minicore-ledger-${Date.now()}.ndjson`
+        a.click()
+        URL.revokeObjectURL(url)
+
+        setStatus(`✓ Exported ${spans.length} spans`, 'success')
+        window.toast(`Exported ${spans.length} spans`, 'success')
+      } catch (error) {
+        setStatus('✗ Export failed: ' + error.message, 'error')
+        window.toast('Export failed: ' + error.message, 'error')
+      }
+    }
+
+    // Show sign/verify/export buttons after first execution
+    const originalExecute = window.execute
+    window.execute = async function() {
+      await originalExecute.apply(this, arguments)
+      // Show additional buttons after first execution
+      document.querySelector('[data-testid="btn-sign"]').style.display = 'inline-block'
+      document.querySelector('[data-testid="btn-export-ndjson"]').style.display = 'inline-block'
     }
 
     // Load example on startup
