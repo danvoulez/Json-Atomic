@@ -6,6 +6,7 @@
  * - Real timeout enforcement with worker.terminate()
  * - No network access (worker doesn't expose fetch)
  * - Isolated scope with only provided context variables
+ * - Deterministic execution in replay mode
  *
  * @module
  */
@@ -81,8 +82,18 @@ export const BrowserSandbox: SandboxAdapter = {
         })
       }
 
+      // Get replay context if available
+      // @ts-ignore - check for global replay context
+      const replayContext = globalThis.__minicore_replay_context
+        ? {
+            seed: globalThis.__minicore_replay_context.seed,
+            fixedTime: globalThis.__minicore_replay_context.now(),
+            state: parseInt(globalThis.__minicore_replay_context.seed, 36) || 12345
+          }
+        : null
+
       // Start execution
-      worker.postMessage({ code, context })
+      worker.postMessage({ code, context, replayContext })
     })
   }
 }

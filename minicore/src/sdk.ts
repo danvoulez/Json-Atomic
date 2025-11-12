@@ -76,6 +76,33 @@ export { runCode } from './kernels/run_code.ts'
 export { evaluatePrompt } from './kernels/evaluate_prompt.ts'
 export { applyPolicy } from './kernels/apply_policy.ts'
 
+// Replay and determinism
+export {
+  ReplayController,
+  seededRandom,
+  getEnvFingerprint,
+  createDeterministicContext,
+  verifyDeterminism,
+  getReplayContext
+} from './replay.ts'
+
+// Policy registry
+export {
+  POLICY_REGISTRY,
+  getDefaultPolicyOrder,
+  getPolicyMetadata,
+  getAllPolicies,
+  validatePolicyConfig,
+  applyPoliciesInOrder,
+  createPolicyConfig,
+  simulatePolicy
+} from './policies/registry.ts'
+
+// UI components (browser only)
+export { PolicyStudio } from './ui/policy-studio.ts'
+export { LedgerViewer } from './ui/ledger-viewer.ts'
+export * as UIUtils from './ui/ui-utils.ts'
+
 // Type exports
 export type {
   Span,
@@ -96,6 +123,22 @@ export type {
   LoaderOptions,
   EnvironmentConfig
 } from './types.ts'
+
+export type {
+  ReplayConfig,
+  DeterministicContext,
+  ReplayMetadata
+} from './replay.ts'
+
+export type {
+  PolicyMetadata,
+  PolicyProfile,
+  PolicyMetrics
+} from './policies/registry.ts'
+
+export type {
+  LedgerFilter
+} from './ui/ledger-viewer.ts'
 
 /**
  * Create and run a span in one call
