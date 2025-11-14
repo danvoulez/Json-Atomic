@@ -13,7 +13,7 @@
     "@monaco-editor/react": "^4.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@noble/curves": "^1.4.0",
+    "@noble/curves": "^2.0.1",
     "@noble/hashes": "^1.4.0",
     "zod": "^3.22.0"
   },
