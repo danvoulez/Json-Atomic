@@ -17,7 +17,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -67,7 +67,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -138,7 +138,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -173,7 +173,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -232,7 +232,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -274,7 +274,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Get version from package.json
         id: package-version
